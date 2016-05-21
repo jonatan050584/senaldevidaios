@@ -76,8 +76,8 @@ var Header = function(){
 				console.log("aca");
 				
 
-				permissions = window.plugins.permissions;
-				permissions.hasPermission(checkPermissionCallback, null, permissions.READ_CONTACTS);
+				//permissions = window.plugins.permissions;
+				//permissions.hasPermission(checkPermissionCallback, null, permissions.READ_CONTACTS);
 				 
 				
 
@@ -85,7 +85,7 @@ var Header = function(){
 
 
 				
-
+				listarContactos();
 				
 							
 			}else{
@@ -101,7 +101,7 @@ var Header = function(){
 	
 }
 
-function checkPermissionCallback(status) {
+/*function checkPermissionCallback(status) {
   if(!status.hasPermission) {
     var errorCallback = function() {
       
@@ -121,7 +121,7 @@ function checkPermissionCallback(status) {
 
   	listarContactos();
   }
-}
+}*/
 
 function listarContactos(){
 	console.log("listarcontactos");

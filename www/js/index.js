@@ -27,7 +27,7 @@ var h; //alto de pantalla
 
 var terremoto = false;
 
-var version = "1.0.2";
+var version = "1.0.1";
 
 if(production){
     //pathapi = "http://picnic.pe/clientes/bancofalabella/RESTAPI/";
@@ -253,7 +253,8 @@ function comprobarVersion(){
         url:pathapi+"sistema/version",
         dataType:"json",
         data:{
-            version:version
+            version:version,
+            platform:"ios"
         },
         type:'get',
         success:function(res){
