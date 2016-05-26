@@ -2,6 +2,7 @@ var Menu = function(){
 	this.dom = $("#menu");
 	if(usuario.pic!=null) $("#menu .pic").css("background-image",'url("'+usuario.pic+'")')
 	$("#menu .nombre").html(usuario.nombres+" "+usuario.apellidos);
+	$("#menu .telefono").html(usuario.telefono);
 
 
 

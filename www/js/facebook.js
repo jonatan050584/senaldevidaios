@@ -24,18 +24,18 @@ var Facebook = function(){
 			info.pic = null;
 
 			facebookConnectPlugin.api('/me/picture?width=200&height=200&redirect=0',null,function(res){  	
-				//console.log(res);
+				//consolelog(res);
 				if(!res.data.is_silhouette){
 					info.pic = res.data.url;
 				}
 				facebook.info = info;
 				callback(info);
 			},function(error){
-				//console.log(error);
+				//consolelog(error);
 			});
 
 		}, function(e){
-			//console.log(e);
+			//consolelog(e);
 		});
 	}
 

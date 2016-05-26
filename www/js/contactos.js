@@ -9,7 +9,9 @@ var Contactos = function(){
 
 	this.invitados = new Array();
 
-	this.total = 0;
+	
+
+	this.numeros = new Array();
 	
 	var timebus;
 
@@ -18,8 +20,6 @@ var Contactos = function(){
 	});
 
 	
-
-
 	$("#contactos .busqueda input[name=buscar]").keyup(function(e){
 		clearTimeout(timebus);
 		var bus = $(this).val().toLowerCase();
@@ -70,7 +70,8 @@ var Contactos = function(){
 		//header.setButton("done",this.done);
 		if(!this.flag){
 			this.flag=true;
-			this.listar();	
+			this.listar();
+
 		}
 		
 
@@ -79,7 +80,7 @@ var Contactos = function(){
 	
 
 	this.listar = function(){
-
+		
 		$("#contactos .lista").empty();
 
 		
@@ -93,7 +94,7 @@ var Contactos = function(){
 			var es = new Espera("Listando contactos...");
 			
 			navigator.contacts.find(['displayName', 'name','phoneNumbers'], this.onContacts, function(e){
-				//console.log(error);
+				//consolelog(error);
 			}, options);
 		}else{
 
@@ -111,7 +112,7 @@ var Contactos = function(){
 
 	this.onContacts = function(res){
 		
-		console.log(res);
+		consolelog(res);
 
 		$("#espera").hide();
 		
@@ -141,22 +142,22 @@ var Contactos = function(){
 
 					if(tel.substr(0,1)=="9"){
 						
+						if(contactos.numeros.indexOf(tel)==-1){
+							contactos.numeros.push(tel);
+							var nom = val.displayName;
+							if(nom==null) nom = val.name.formatted;
 
-						
-						var nom = val.displayName;
-						if(nom==null) nom = val.name.formatted;
 
+							var it = new ItemContacto({
+								nombre: nom,
+								telefono: tel,
+								foto:foto,
+								original:v.value
+							});
+							$("#contactos .lista").append(it.html);
 
-						var it = new ItemContacto({
-							nombre: nom,
-							telefono: tel,
-							foto:foto,
-							original:v.value
-						});
-						$("#contactos .lista").append(it.html);
-
-						
-
+							
+						}
 
 						
 
@@ -179,23 +180,26 @@ var Contactos = function(){
 	
 	this.validarexiste = function(tel,nombre){
 
-		//console.log(usuario.invitaciones);
+		//consolelog(usuario.invitaciones);
 		var es = new Espera("");
 		
 		var yaesta = false;
-		$.each(usuario.invitaciones,function(k,v){
+		if(usuario.invitaciones!=null){
+			$.each(usuario.invitaciones,function(k,v){
 
-			if(v.telefono == tel || v.itelefono == tel){
-				yaesta=true;
-			}
+				if(v.telefono == tel || v.itelefono == tel){
+					yaesta=true;
+				}
 
-		});
-
-		$.each(usuario.miembros,function(k,v){
-			if(v.telefono == tel || v.itelefono == tel){
-				yaesta=true;
-			}
-		});
+			});
+		}
+		if(usuario.miembros!=null){
+			$.each(usuario.miembros,function(k,v){
+				if(v.telefono == tel || v.itelefono == tel){
+					yaesta=true;
+				}
+			});
+		}
 		$("#contacto .pic").attr("src","img/user.png");
 		
 
@@ -205,7 +209,7 @@ var Contactos = function(){
 			},function(res){
 				es.fin();
 				//$("#espera").show();
-				if(res.info==null){
+				if(res.info==null){ //el contacto no tiene cuenta
 					$("#contacto .nombre").html(nombre);
 					$("#contacto .numero .telefono").html(tel);
 					$("#contacto .siapp").hide();
@@ -213,21 +217,41 @@ var Contactos = function(){
 					$("#contacto .noapp .nom").html(nombre);
 					new Boton($("#contacto .noapp .bt.invitar"),function(){
 						$("#contacto").hide();
-						var esp = new Espera("");
+						
 						new Request("grupo/invitarmiembro",{
 							tel:tel,
 							nom:nombre,
 							admin:usuario.llave
 						},function(){
-							esp.fin();
+							
+
+							var inv = usuario.invitaciones;
+							if(inv==null) inv=new Array();
+							inv.push({
+								invitado:null,
+								inombres:nombre,
+								id:null,
+								admin:0,
+								itelefono:tel,
+								pic:null
+							});
+
+							usuario.setInvitaciones(inv);
+
+
 							getContent({page:"internagrupo"},true);
 
 							
 
-							$.each(usuario.miembros,function(k,v){
-								socket.emit("directo",{ac:"nuevoinvitado",id:v.id});
+							//Notificamos a los demás miembros del grupo que se ha invitado a alguien más
+							$.each(usuario.miembros,function(k,v){ 
+								if(v.id!=usuario.id){
+									socket.emit("directo",{ac:"nuevoinvitado",id:v.id});
+								}
 							});
 							
+						},{
+							espera:""
 						})
 
 						window.plugins.socialsharing.shareViaSMS('Instala Señal de Vida en tu smartphone y mantengámonos conectados en caso de Sismo. Visita https://goo.gl/PCzl2C para descargarlo',tel,function(msg){
@@ -237,7 +261,7 @@ var Contactos = function(){
 						});
 						
 					});
-				}else{
+				}else{ //el contacto si tiene cuenta
 					$("#contacto .siapp").show();
 					$("#contacto .noapp").hide();
 					if(res.info.pic!=null){
@@ -248,17 +272,47 @@ var Contactos = function(){
 
 					new Boton($("#contacto .siapp .bt.agregar"),function(){
 						$("#contacto").hide();
-						var esp = new Espera("");
+						
 						new Request("grupo/agregarmiembro",{
 							admin:usuario.llave,
-							tel:res.info.telefono
-						},function(){
-							esp.fin();
-							getContent({page:"internagrupo"},true);
-							$.each(usuario.miembros,function(k,v){
-								socket.emit("directo",{ac:"nuevoinvitado",id:v.id});
-							});
-							socket.emit("directo",{ac:"invitacion",id:res.info.id});
+							miembro:res.info.id
+						},function(ret){
+							
+							if(ret.res=="ok"){
+
+								var inv = usuario.invitaciones;
+								if(inv==null) inv=new Array();
+								inv.push({
+									invitado:res.info.id,
+									nombres:res.info.nombres,
+									apellidos:res.info.apellidos,
+									id:res.info.id,
+									admin:0,
+									telefono:res.info.telefono,
+									pic:res.info.pic
+								});
+
+								usuario.setInvitaciones(inv);
+
+								getContent({page:"internagrupo"},true);
+								
+								//Notificamos a los demás miembros del grupo que se ha invitado a alguien más
+								$.each(usuario.miembros,function(k,v){ 
+									if(v.id!=usuario.id){
+										socket.emit("directo",{ac:"nuevoinvitado",id:v.id});
+									}
+								});
+								
+								//Notificamos al invitado
+								socket.emit("directo",{ac:"invitacion",id:res.info.id});
+							
+							}else{
+								new Alerta("Ocurrió algún tipo de error. Inténtalo de nuevo más tarde.");
+							}
+							
+							
+						},{
+							espera:""
 						})
 					});
 
@@ -337,7 +391,7 @@ var ItemContacto = function(d){
 	        
 	        
 		
-			//window.plugins.socialsharing.shareViaSMS('Prueba LifeSignal para tu smartphone. Visita http://picnic.pe/lifesignal/ para descargarlo',d.original,function(msg){console.log('ok: ' + msg);},function(msg) {alert('error: ' + msg);});
+			//window.plugins.socialsharing.shareViaSMS('Prueba LifeSignal para tu smartphone. Visita http://picnic.pe/lifesignal/ para descargarlo',d.original,function(msg){consolelog('ok: ' + msg);},function(msg) {alert('error: ' + msg);});
 		
 		
 	})

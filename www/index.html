@@ -15,9 +15,19 @@
     <script src="js/html2canvas.js"></script>
     <script src="js/leaflet/leaflet.js"></script>
     <script src="js/encriptacion.js"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3&sensor=true"></script>
 </head>
 <body>
 <div id="fb-root"></div>
+
+
+<div id="marker">
+	<div class="velo"></div>
+	<div class="area">
+		<div class="pic"></div>
+	</div>
+
+</div>
 
 <div id="espera">
 	<div class="table">
@@ -74,14 +84,47 @@
 	</div>
 </div>
 
+<div class="alerta" id="miembro">
+	<div class="table">
+		<div class="cell">
+			
+			<div class="ventana">
+				<div class="cerrar"></div>
+				<div class="txt">
+					<img src="" width="100" height="100" class="pic">
+					<div class="nombres"></div>
+					<div class="telefono"></div>
+					<br>
+				</div>
+				<div class="bt llamar" data-tel="">Llamar</div>
+				<div class="eliminar">Eliminar del grupo</div>
+				<div class="clear"></div>
+			</div>
+		</div>
+	
+	</div>
+</div>
+
 <div id="header">
+	<div class="listaopciones">
+		<div class="base"></div>
+		<div class="lista">
+			<div class="item abandonar">Abandonar grupo</div>
+		</div>
+		
+	</div>
 	<div class="btn menu">
 		<div class="inv"></div>
 	</div>
 	<div class="btn back"></div>
-	<div class="btn done"></div>
-	<div class="btn addcontact"></div>
+	
 
+	<div class="btn opciones"></div>
+	<div class="sep"></div>
+	<div class="btn addcontact"></div>
+	<div class="sep"></div>
+	<div class="btn ubicaciones"></div>
+	
 	<div class="titulo"></div>
 </div>
 <div id="home">
@@ -128,10 +171,52 @@
 		<input class="input" type="password" name="clave" maxlength="20" placeholder="Contraseña" required>
 		<input class="input" type="password" name="reclave" maxlength="20" placeholder="Repite contraseña" required>
 		<div class="bt guardar">Guardar</div>
+		<div class="btn atras">Atrás</div>
 	</form>
 </div>
 <div id="recuperar">
 	
+</div>
+
+<div id="instrucciones">
+	<img src="img/logounacem.jpg" height="auto" width="116" alt="" class="logo">
+	<div class="slide">
+		<div class="area">
+			<div class="mov">
+				<div class="item">
+					
+					<div class="img"></div>
+					<div class="txt">
+						<strong>Señal de Vida</strong> funciona cuando las conexiones se caen a causa de un desastre
+						y te ayuda a saber la ubicación de tus familiares y amigos.
+					</div>
+				</div>
+				<div class="item">
+					<div class="img"></div>
+					<div class="txt">
+						Selecciona a tus seres queridos y crea un <strong>"Grupo Seguro"</strong>, el app actualiza
+						en segundo plano la ubicación de cada uno de ellos.
+					</div>
+				</div>
+				<div class="item">
+					<div class="img"></div>
+					<div class="txt">
+						Solo en caso de desastre la ubicación de cada integrante de tu grupo "Grupo Seguro" será
+						revelada en un mapa.
+					</div>
+				</div>
+				<div class="clear"></div>
+			</div>
+		</div>
+		
+		<div class="nav">
+			<div class="it ac"></div>
+			<div class="it"></div>
+			<div class="it"></div>
+			<div class="clear"></div>
+		</div>
+		<div class="bt comenzar">COMENZAR</div>
+	</div>
 </div>
 
 <div id="internagrupo">
@@ -160,7 +245,7 @@
 			<div class="miembros"></div>
 			<div class="pendientes"></div>
 		</div>
-		<div class="bt salir">Abandonar grupo</div>
+		
 	</div>
 	
 </div>
@@ -195,6 +280,7 @@
 	<div class="btn cerrar"></div>
 	<div class="pic"></div>
 	<div class="nombre"></div>
+	<div class="telefono"></div>
 	<div class="botones">
 		<div class="item migrupo">Mi grupo</div>
 		<div class="item invitaciones">Invitaciones <div class="cant"></div></div>
@@ -218,6 +304,7 @@
 <script src="js/ubicacion.js"></script>
 <script src="js/header.js"></script>
 <script src="js/contactos.js"></script>
+<script src="js/instrucciones.js"></script>
 <script src="js/invitaciones.js"></script>
 <script src="js/registro.js"></script>
 <script src="js/menu.js"></script>

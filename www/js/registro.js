@@ -3,11 +3,14 @@ var Registro = function(){
 	this.titulo = "Regístrate";
 	this.error = false;
 
+	new Boton($("#registro .btn.atras"),function(){
+		getContent({page:"home"},false);
 
+	})
 
 	this.mostrar = function(){
 		
-		header.mostrar("back");
+		header.mostrar();
 
 		Registro.prototype.mostrar.call(this);
 	}

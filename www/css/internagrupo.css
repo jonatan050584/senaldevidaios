@@ -191,3 +191,27 @@
     transform: rotate(45deg);
     color: #e11b4b;
 }
+
+
+#miembro .pic{
+	margin:auto;
+	border-radius:50px;
+	display:block;
+	margin-bottom:20px;
+}
+#miembro .eliminar {
+    color: rgba(225,27,76,1);
+   
+
+    margin: auto;
+    border-bottom: solid 1px rgba(225,27,76,1);
+    font-size: 13px;
+    display: table;
+    float: right;
+	padding-bottom: 1px;
+    margin-top: 20px;
+    margin-right: 40px;
+}
+#miembro .telefono{
+	font-size: 12px;
+}

@@ -34,6 +34,8 @@ var Header = function(){
 
 
 	this.mostrarNotificaciones = function(){
+		consolelog("notificaciones---");
+		consolelog(usuario.notificaciones);
 		var cant = 0;
 		if(usuario.notificaciones!=null) cant = usuario.notificaciones.length;
 		if(cant>0){
@@ -53,6 +55,27 @@ var Header = function(){
 		getContent({page:"invitaciones"},true);
 	});
 	
+	new Boton($("#header .ubicaciones"),function(){
+		getContent({page:"ubicacion"},true);
+	});
+
+	new Boton($("#header .listaopciones .base"),function(){
+		$("#header .listaopciones").hide();
+		$("#header .opciones").removeClass('ac');
+	});
+
+	$("#header .listaopciones").css("height",h-50);
+
+	new Boton($("#header .listaopciones .item.abandonar"),function(){
+		$("#header .listaopciones").hide();
+		internagrupo.abandonar();
+		$("#header .opciones").removeClass('ac');
+	});
+
+	new Boton($("#header .opciones"),function(e){
+		e.addClass("ac");
+		$("#header .listaopciones").show();
+	})
 
 	new Boton($("#header .btn.add"),function(){
 
@@ -65,33 +88,39 @@ var Header = function(){
 	});
 
 	new Boton($("#header .btn.addcontact"),function(){
-
+		var totinv=0;
+		var totmie=0;
+		if(usuario.invitaciones!=null) totinv = usuario.invitaciones.length;
+		if(usuario.miembros!=null) totmie = usuario.miembros.length;
 		
-		var total = usuario.invitaciones.length + usuario.miembros.length;
-		
+		var total = totinv + totmie;
+		consolelog("total: "+total);
+		consolelog(usuario.invitaciones);
+		consolelog(usuario.miembros);
 		if(total<10){
 
 			//getContent({page:"contactos"},true);
-			if(production){
-				console.log("aca");
+			/*if(production){
+				consolelog("aca");
 				
 
-				//permissions = window.plugins.permissions;
-				//permissions.hasPermission(checkPermissionCallback, null, permissions.READ_CONTACTS);
+				permissions = window.plugins.permissions;
+				permissions.hasPermission(checkPermissionCallback, null, permissions.READ_CONTACTS);
 				 
 				
 
-				console.log("hola");
+				consolelog("hola");
 
 
 				
-				listarContactos();
+				//listarContactos();
 				
 							
 			}else{
 				listarContactos();
 				
-			}
+			}*/
+			listarContactos();
 		}else{
 			new Alerta("El grupo solo puede tener 10 miembros como máximo");
 		}
@@ -101,7 +130,7 @@ var Header = function(){
 	
 }
 
-/*function checkPermissionCallback(status) {
+function checkPermissionCallback(status) {
   if(!status.hasPermission) {
     var errorCallback = function() {
       
@@ -112,7 +141,7 @@ var Header = function(){
       if( !status.hasPermission ){
       	errorCallback();
       }else{
-      	console.log("permiso aceptado");
+      	consolelog("permiso aceptado");
 
     	listarContactos();
       }
@@ -121,10 +150,10 @@ var Header = function(){
 
   	listarContactos();
   }
-}*/
+}
 
 function listarContactos(){
-	console.log("listarcontactos");
+	consolelog("listarcontactos");
 	getContent({page:"contactos"},true);
 	
 	

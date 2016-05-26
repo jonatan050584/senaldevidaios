@@ -6,11 +6,6 @@ var Invitaciones = function(){
 		
 		header.mostrar("back");
 
-		if(usuario.notificaciones!=null) this.listar();
-		else{
-			$("#invitaciones .lista").html('<div class="nohay">No tienes ninguna invitación pendiente.</div>');
-		}
-		this.revisarNuevas();
 		Invitaciones.prototype.mostrar.call(this);
 	}
 
@@ -25,27 +20,24 @@ var Invitaciones = function(){
 		})
 		
 	}
-	this.revisarNuevas = function(){
-		new Request("usuario/buscarinvitaciones",{
-			llave:usuario.llave
-		},function(res){
-//			console.log(res);
-			if(res.length>0){
-				usuario.setNotificaciones(res);
-			}else{
-				usuario.setNotificaciones(null);
-			}
-			
-		},{
-			espera:null
-		})
+	this.llenarLista = function(){
+		$("#invitaciones .lista").empty();
+		if(usuario.notificaciones!=null){
+			$.each(usuario.notificaciones,function(key,val){
+				var it =  new ItemInvitacion(val);
+				$("#invitaciones .lista").append(it.html);
+			})
+		}else{
+			$("#invitaciones .lista").html('<div class="nohay">No tienes ninguna invitación pendiente.</div>');
+		}
 	}
+	
 }
 
 Invitaciones.prototype = new Seccion();
 
 var ItemInvitacion = function(d){
-	console.log(d);
+	consolelog(d);
 	this.html = $(lib.ItemInvitacion);
 	
 	this.html.find(".usuario").html(d.nombres+" "+d.apellidos);
@@ -55,42 +47,67 @@ var ItemInvitacion = function(d){
 	}
 
 	new Boton(this.html.find(".bt.aceptar"),function(e){
-		console.log(usuario);
-		new Alerta("Si ya perteneces a un grupo, dejarás de formar parte de él y pasarás a formar parte del nuevo grupo.<br><br>¿Deseas aceptar la invitación de "+d.nombres+"?","Aceptar",function(){
+		var msg="¿Deseas aceptar la invitación de "+d.nombres+"?";
+
+		if(usuario.grupo!=null){
+			msg+= "<br>Dejarás de pertenecer al grupo actual.";
+			if(usuario.admin==true){
+				msg+="<br>(La administración del grupo pasará a alguien más)";
+			}
+		}
+		new Alerta(msg,"Aceptar",function(){
 			var antgrupo = null;
 			if(usuario.grupo!=null) antgrupo = usuario.grupo.id;
+			new Espera("");
 			new Request("grupo/aceptarinvitacion",{
 				tel:usuario.telefono,
 				grupo:d.grupo_id,
 				antgrupo:antgrupo,
-				admin:internagrupo.admin
+				admin:usuario.admin
 			},function(res){
+
+
+
+				usuario.admin = false;
+
 				if(usuario.miembros!=null){
 					$.each(usuario.miembros,function(k,v){
-						socket.emit("directo",{ac:"abandonagrupo",id:v.id});	
+						if(v.id!=usuario.id){
+							socket.emit("directo",{ac:"abandonagrupo",id:v.id});	
+						}
+						
 					})
 				}
 				
 
-				usuario.setNotificaciones(null);
+				new Request("usuario/buscarinvitaciones",{
+	                llave:usuario.llave
+	            },function(resp){
+	                if(resp.length>0){
+	                    usuario.setNotificaciones(resp);
+	                }else{
+	                    usuario.setNotificaciones(null);
+	                }
+
+	                usuario.setGrupo(res.grupo);
+					usuario.setMiembros(res.miembros);
+					usuario.setInvitaciones(res.invitaciones);
+					
+					$.each(usuario.miembros,function(k,v){
+						if(v.id!=usuario.id){
+							socket.emit("directo",{ac:"invitacionaceptada",id:v.id});	
+						}
+					})
+					
+					$("#espera").hide();
+
+					getContent({page:"internagrupo"},true);
+	                
+	            })
 
 
-				usuario.setGrupo(res.grupo);
-				usuario.setMiembros(res.miembros);
 				
-				$.each(usuario.miembros,function(k,v){
-					socket.emit("directo",{ac:"invitacionrespondida",id:v.id});	
-				})
-				
 
-				getContent({page:"internagrupo"},true);
-				/*socket.emit("aceptarinvitacion",{
-					usuario:d.usuario_id,
-					grupo:d.grupo_id
-				});*/
-
-			},{
-				espera:"Enviando respuesta..."
 			});
 
 		})
@@ -99,28 +116,26 @@ var ItemInvitacion = function(d){
 
 	});
 	new Boton(this.html.find(".bt.rechazar"),function(e){
-		
+		new Espera("");
 		new Request("grupo/rechazarinvitacion",{
 			id:usuario.id,
 			grupo:d.grupo_id
-		},function(res){
+		},function(response){
 
 			new Request("usuario/buscarinvitaciones",{
-				llave:usuario.llave
-			},function(res){
-				
-				if(res.length>0){
-					usuario.setNotificaciones(res);
-				}else{
-					usuario.setNotificaciones(null);
-				}
-				invitaciones.mostrar();	
-			},{
-				espera:null
-			})
+                llave:usuario.llave
+            },function(res){
+                if(res.length>0){
+                    usuario.setNotificaciones(res);
+                }else{
+                    usuario.setNotificaciones(null);
+                }
+                $("#espera").hide();
+            })
+           
 
-			$.each(res.miembros,function(k,v){
-				socket.emit("directo",{ac:"invitacionrespondida",id:v.id});
+			$.each(response.miembros,function(k,v){
+				socket.emit("directo",{ac:"invitacionrechazada",id:v.id});
 			})
 			
 		});

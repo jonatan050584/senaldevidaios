@@ -1,0 +1,78 @@
+#instrucciones{
+	display: none;
+}
+#instrucciones .slide{
+	width: 100%;
+	
+	background: #fff;
+	overflow: hidden;
+	position: absolute;
+	height: 404px;
+	top: calc(50% - 202px);
+}
+#instrucciones .area{
+	width: 100%;
+	overflow: hidden;
+}
+#instrucciones .mov{
+	width: 300%;
+	height: 360px;
+}
+#instrucciones .item{
+	width: 100%;
+	float: left;
+}
+
+#instrucciones .item .txt{
+	font-family: 'montserratlight';
+	font-size: 13px;
+	text-align: center;
+	line-height: 16px;
+	color: #2b2d3a;
+	width: 300px;
+	max-width: calc(100% - 40px);
+	margin: auto;
+}
+#instrucciones .item .img{
+	height: 230px;
+	width: 231px;
+	margin: auto;
+	margin-bottom: 25px;
+	background-size: cover;
+}
+#instrucciones .item:nth-child(1) .img{
+	background-image: url("../img/ins1.jpg");
+}
+#instrucciones .item:nth-child(2) .img{
+	background-image: url("../img/ins2.jpg");
+}
+#instrucciones .item:nth-child(3) .img{
+	background-image: url("../img/ins3.jpg");
+}
+#instrucciones .nav{
+	display: table;
+	margin: auto;
+	padding-top: 16px;
+	padding-bottom: 16px;
+}
+#instrucciones .nav .it{
+	width:10px;
+	height: 10px;
+	border-radius: 6px;
+	border: solid 1px #e11b4c;
+	float: left;
+	margin-left: 4px;
+	margin-right: 4px;
+	float: left;
+}
+#instrucciones .nav .it.ac{
+	background: #e11b4c;
+}
+#instrucciones > .logo{
+	position: fixed;
+	bottom: 20px;
+	left: calc(50% - 58px);
+}
+#instrucciones .bt.comenzar{
+	display: none;
+}

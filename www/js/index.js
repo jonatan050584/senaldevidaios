@@ -13,8 +13,10 @@ var invitaciones;
 var registro;
 var menu;
 var sobre;
-
+var instrucciones;
 var bd;
+
+var geopermisos;
 
 var appkey = "miclave";
 
@@ -30,13 +32,12 @@ var terremoto = false;
 var version = "1.0.1";
 
 if(production){
-    //pathapi = "http://picnic.pe/clientes/bancofalabella/RESTAPI/";
-   //pathapi = 'http://192.168.0.16/lifesignal/api/';
-    pathapi = "http://picnic.pe/clientes/lifesignal/api2/";
+
+    pathapi = "http://picnic.pe/clientes/lifesignal/api3/";
 }else{
-    //pathapi = 'http://52.34.151.159/RESTAPI/';
+  
     pathapi = "http://localhost/lifesignal/api2/";
-    //pathapi = 'http://localhost/lifesignal/Life-Signal-Api/';
+   
 }
 
 var home;
@@ -62,13 +63,13 @@ var app = {
             document.addEventListener("resume", this.onDeviceResume);
             document.addEventListener("pause",this.onDevicePause);
             document.addEventListener("offline", function(){
-               // console.log("offline");
+               // consolelog("offline");
                 online=false;   
                
                 
             }, false);
             document.addEventListener("online",function(){
-                //console.log("online");
+                //consolelog("online");
                 online=true;
                 
             })
@@ -79,9 +80,9 @@ var app = {
     },
     
     onDeviceResume: function(){
-
-        getContent({page:"internagrupo"},true);
-
+        consolelog("resume");
+       
+        //alert("resume");
         //alert(1);
         //backgroundGeoLocation.stop()
         
@@ -93,7 +94,7 @@ var app = {
 
         /*
         var callbackFn = function(location) {
-            console.log('[js] BackgroundGeoLocation callback:  ' + location.latitude + ',' + location.longitude);
+            consolelog('[js] BackgroundGeoLocation callback:  ' + location.latitude + ',' + location.longitude);
 
             socket.emit('enviarposicion',{
                 id:usuario.id,
@@ -107,7 +108,7 @@ var app = {
         };
 
         var failureFn = function(error) {
-            console.log('BackgroundGeoLocation error');
+            consolelog('BackgroundGeoLocation error');
         };
 
         // BackgroundGeoLocation is highly configurable. See platform specific configuration options
@@ -132,12 +133,7 @@ var app = {
             $("#contacto").hide();
         });
 
-
         
-
-        //permisodered = window.plugins.permissions;
-        //permisodered.hasPermission(checkPermisodeRedCallback, null, permisodered.ACCESS_NETWORK_STATE);
-
         comprobarVersion();
         /*
         var push = PushNotification.init({
@@ -153,11 +149,11 @@ var app = {
 
         push.on('registration', function(data) {
             // data.registrationId
-            console.log(data);
+            consolelog(data);
         });
 
         push.on('notification', function(data) {
-            console.log(data);
+            consolelog(data);
             // data.message,
             // data.title,
             // data.count,
@@ -167,39 +163,43 @@ var app = {
         });
 
         push.on('error', function(e) {
-            console.log(e);
+            consolelog(e);
             // e.message
         });
     
         */
-        console.log("device ready");
+        consolelog("device ready");
 
         
         header = new Header();
 
 
-        header.setButton("back",function(){
-            $("#header").hide();
-            getContent({page:"home"},false);
-        })
-
-        facebook = new Facebook();
-
-        home = new Home();
-
-        if(!production){
-            setTimeout(function(){
-                facebook.init();
-            },4000);
-            initTime = 4000;
-        }
-
+        
         if(window.localStorage.getItem("usuario")==null){
             window.localStorage.clear();
-            console.log("no sesion");
-            $("#home").show();
+            consolelog("no sesion");
+           
+            
+            home = new Home();
+            
+            registro = new Registro();
+
+            facebook = new Facebook();
+
+            if(!production){
+                setTimeout(function(){
+                    facebook.init();
+                    home.mostrar();
+                },2000);
+                initTime = 2000;
+            }else{
+                home.mostrar();
+            }
+
+
+
         }else{
-            console.log("sesion activa");
+            consolelog("sesion activa");
             usuario = new Usuario();
 
             var data = {
@@ -210,34 +210,28 @@ var app = {
                 miembros: JSON.parse(window.localStorage.getItem("miembros"))
             }
             
-            //if((production && online) || !production){
+           
 
-                new Request("usuario/info",{
-                    key:data.info.llave
-                },function(res){
-                    data = res;
-                    usuario.iniciar(data);    
-                },{
-                    error:function(){
-                        usuario.iniciar(data);
-                    }
-                })
+            new Request("usuario/info",{
+                key:data.info.llave
+            },function(res){
+                data = res;
+                usuario.iniciar(data);    
+            },{
+                error:function(){
+                    usuario.iniciar(data);
+                }
+            })
 
-            //}else{
-            //    usuario.iniciar(data);    
-            //}
-
-
-            
+           
         }
 
         
         
-        w = $(window).innerWidth();
-        h = $(window).innerHeight();
+       
         //login = new Login();
         
-        registro = new Registro();
+        
         
 
         
@@ -258,11 +252,12 @@ function comprobarVersion(){
         },
         type:'get',
         success:function(res){
+            
             if(res["res"]=="menor"){
                 new Alerta(res["msg"],res["btn"],function(){
                     window.open(res["link"],"_system");
                     $("#alerta").show();
-                })
+                },res["noclose"])
             }
         }
         
@@ -333,16 +328,16 @@ var Request = function(ac,params,callback,options){
         cache:false,
         timeout:20*1000,
         success:function(res){
-            //console.log(res);
+            //consolelog(res);
            // es.fin();
             callback(res);
              $("#espera").hide();
         },
         error: function(x, t, m) {
             
-           // console.log(x);
-            //console.log(t);
-            //console.log(m);
+           // consolelog(x);
+            //consolelog(t);
+            //consolelog(m);
 
             //es.fin();
 
@@ -381,14 +376,18 @@ function getContent(obj,addEntry){
     var antseccion = seccion;
     seccion=obj.page;
 
-    //console.log(window[antseccion]);
+    //consolelog(window[antseccion]);
 
    
     //if(antseccion!=""){
         //if(seccion=="home"){
             //if(!flaglogin) window[antseccion].ocultar();    
         //}else{
-    window[antseccion].ocultar();    
+    try{
+        window[antseccion].ocultar();    
+    }catch(e){
+        consolelog(e);
+    }
         //}
         
     //}
@@ -396,18 +395,21 @@ function getContent(obj,addEntry){
     switch(seccion){
         
         case "internagrupo":
-            internagrupo.mostrar(obj.grupo,obj.nombre);
+            try{
+                internagrupo.mostrar(obj.grupo,obj.nombre);
+            }catch(e){
+                //console.log(e);
+                 navigator.app.exitApp();
+            }
             
             break;
-        case "ubicacion":
-            if(terremoto==false){
-                history.back();
-            }
-            ubicacion.mostrar();
-            ubicacion.iniciarMapa();
-            break;
         default:
+        try{
             window[seccion].mostrar();
+        }catch(e){
+            //console.log(e);
+            navigator.app.exitApp();
+        }
 
        
     }
@@ -533,3 +535,8 @@ var Alerta = function(msg,btn,callback,noclose){
 
 
 
+function consolelog(msg){
+    if(!production){
+        console.log(msg);
+    }
+}

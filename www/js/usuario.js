@@ -1,9 +1,14 @@
 var Usuario = function(){
     this.grupo = null
     this.invitaciones = null;
+    this.admin = false;
+    this.flag=false;
 
     this.iniciar = function(data){
-
+        consolelog("data----");
+        consolelog(data);
+        $("#marker").show();
+        
         var info = data.info;
 
         this.id = info.id;
@@ -14,6 +19,14 @@ var Usuario = function(){
         this.llave = info.llave;
         this.fbid = info.fbid;
         this.pic = info.pic;
+        this.marker = 'img/markeruser.png';
+
+        this.grupo = data.grupo;
+        this.invitaciones = data.invitaciones;
+        this.miembros = data.miembros;
+        this.notificaciones = data.notificaciones;
+
+        header.mostrarNotificaciones();
 
 
         window.localStorage.setItem("usuario",JSON.stringify(info));
@@ -22,9 +35,21 @@ var Usuario = function(){
         window.localStorage.setItem("invitaciones",JSON.stringify(data.invitaciones));
         window.localStorage.setItem("miembros",JSON.stringify(data.miembros));
         
-        console.log(data.miembros);
-        console.log(data.invitaciones);
+       
+        //ver si es administrador de grupo
+        if(data.grupo!=null && data.miembros!=null){
+            $.each(data.miembros,function(k,v){
+                if(v.id == usuario.id && v.admin==1){
+                    usuario.admin=true;
+                }
+            })
+        }
 
+
+        /*if(production){
+            geopermisos = window.plugins.permissions;
+            geopermisos.hasPermission(checkGeoPermisos, null, geopermisos.ACCESS_FINE_LOCATION);
+        }*/
 
         flaglogin=true;
 
@@ -37,10 +62,42 @@ var Usuario = function(){
         else socket = io.connect('http://picnic.pe:8883');
 
         socket.on("connect", function() {
-            //alert("conectado");
-            console.log("usuario conectado al servidor");
 
-            //alert("usuario conectado al socket");
+
+            consolelog("usuario conectado al servidor");
+
+            if(usuario.flag==true){
+                $(".alerta").hide();
+                new Request("grupo/listarpendientes",{
+                    llave:usuario.grupo.llave
+                },function(lista){
+                    usuario.setInvitaciones(lista);
+                })
+                new Request("usuario/buscarinvitaciones",{
+                    llave:usuario.llave
+                },function(res){
+                    if(res.length>0){
+                        usuario.setNotificaciones(res);
+                    }else{
+                        usuario.setNotificaciones(null);
+                    }
+                    
+                },{
+                    espera:null
+                })
+
+                new Request("grupo/listarmiembros",{
+                    llave:usuario.grupo.llave
+                },function(lista){
+                    usuario.setMiembros(lista);
+                })
+
+                
+            }
+
+            usuario.flag=true;
+
+            
             
             socket.emit('check in',{id:usuario.id});
 
@@ -59,7 +116,7 @@ var Usuario = function(){
                 });
 
             },function(e){
-                console.log('error watchposition: '+e);
+                consolelog('error watchposition: '+e);
             },opciones);*/
 
 
@@ -68,19 +125,113 @@ var Usuario = function(){
 
         socket.on("directo",function(data){
             switch(data.ac){
-                case "invitacion":
-                    invitaciones.revisarNuevas();
-                    break;
                 case "nuevoinvitado":
-                    internagrupo.listarpendientes();
+                    
+                    new Request("grupo/listarpendientes",{
+                        llave:usuario.grupo.llave
+                    },function(lista){
+                        usuario.setInvitaciones(lista);
+                    })
+
                     break;
-                case "invitacionrespondida":
-                    internagrupo.listarpendientes();
-                    internagrupo.listarmiembros();
+                case "invitacion":
+                    
+                    new Request("usuario/buscarinvitaciones",{
+                        llave:usuario.llave
+                    },function(res){
+                        if(res.length>0){
+                            usuario.setNotificaciones(res);
+                        }else{
+                            usuario.setNotificaciones(null);
+                        }
+                        
+                    },{
+                        espera:null
+                    })
+
+                    
+                    break;
+                case "invitacionrechazada":
+                    new Request("grupo/listarpendientes",{
+                        llave:usuario.grupo.llave
+                    },function(lista){
+                        usuario.setInvitaciones(lista);
+                    })
+                    break;
+
+                case "invitacionaceptada":
+                    
+                    new Request("grupo/listarpendientes",{
+                        llave:usuario.grupo.llave
+                    },function(lista){
+                        usuario.setInvitaciones(lista);
+                    });
+
+                    new Request("grupo/listarmiembros",{
+                        llave:usuario.grupo.llave
+                    },function(lista){
+                        usuario.setMiembros(lista);
+                    })
+
+                    break;
+                case "invitacioneliminada":
+                    new Request("grupo/listarpendientes",{
+                        llave:usuario.grupo.llave
+                    },function(lista){
+                        usuario.setInvitaciones(lista);
+                    });
+                    break;
+                case "notificacioneliminada":
+                    new Request("usuario/buscarinvitaciones",{
+                        llave:usuario.llave
+                    },function(res){
+                        if(res.length>0){
+                            usuario.setNotificaciones(res);
+                        }else{
+                            usuario.setNotificaciones(null);
+                        }
+                        
+                    },{
+                        espera:null
+                    })
+                    break;
+                case "miembroeliminado":
+                    new Request("grupo/listarmiembros",{
+                        llave:usuario.grupo.llave
+                    },function(lista){
+                        usuario.setMiembros(lista);
+                    })
+                    break;
+                case "membresiaeliminada":
+                    $(".alerta").hide();
+                    usuario.setGrupo(null);
+                    usuario.setMiembros(null);
+                    usuario.setInvitaciones(null);
+                    new Alerta("Has sido retirado del Grupo de Seguridad por el administrador");
+                    
+                    getContent({page:"internagrupo"},true);
+
+
                     break;
                 case "abandonagrupo":
-                    internagrupo.listarmiembros();
-                    internagrupo.listarpendientes();
+                    
+                    new Request("grupo/listarmiembros",{
+                        llave:usuario.grupo.llave
+                    },function(lista){
+
+                        usuario.setMiembros(lista);
+                    })
+
+                    new Request("grupo/listarpendientes",{
+                        llave:usuario.grupo.llave
+                    },function(lista){
+                        usuario.setInvitaciones(lista);
+                    });
+
+
+                    break;
+                case "meeliminaron":
+                    new Alerta("Has sido retirado del Grupo de Seguridad por el administrador");
                     break;
 
             }
@@ -88,11 +239,11 @@ var Usuario = function(){
         })
 
         /*socket.on("posicion",function(data){
-            console.log(data);
+            consolelog(data);
             ubicacion.onPosiciones(data);
         });
         socket.on("mensaje",function(data){
-            console.log(data);
+            consolelog(data);
         });
 
         
@@ -116,7 +267,7 @@ var Usuario = function(){
 
         socket.on("acaboterremoto",function(){
             terremoto=false;
-            console.log("acabo");
+            consolelog("acabo");
             $("#internagrupo .btn.ubicacion").hide();
             $("#internagrupo").css("padding-top",50);
             if(seccion=="ubicacion"){
@@ -147,43 +298,44 @@ var Usuario = function(){
         
         
         internagrupo = new Internagrupo();
-        //ubicacion = new Ubicacion();
+        ubicacion = new Ubicacion();
         contactos = new Contactos();
         invitaciones = new Invitaciones();
         sobre = new Sobre();
-       
-        /*
-        $("#home").hide();
-        $("#header").show();
-
-        $("#menu .nombre").html(usuario.nombres+" "+usuario.apellidos);
-
-        header.cargarInvitaciones();
-
-        if(usuario.pic!=null){
-            $("#menu .pic").css("background-image","url("+usuario.pic+")");
-        }
-        */
-
-        if(window.localStorage.getItem("grupo")!=null){
-            this.grupo = JSON.parse(window.localStorage.getItem("grupo"));
-        }
-        if(window.localStorage.getItem("invitaciones")!=null){
-            this.invitaciones = JSON.parse(window.localStorage.getItem("invitaciones"));
-        }
-        if(window.localStorage.getItem("miembros")!=null){
-            this.miembros = JSON.parse(window.localStorage.getItem("miembros"));
-        }
-        if(window.localStorage.getItem("notificaciones")!=null){
-            this.notificaciones = JSON.parse(window.localStorage.getItem("notificaciones"));
-        }
-
+        instrucciones = new Instrucciones();
         menu =  new Menu();
 
-        header.mostrarNotificaciones();
         
-        getContent({page:"internagrupo"},true);
+        
+        
+        this.crearMarker();
 
+    
+        
+       
+
+        invitaciones.llenarLista();
+        internagrupo.llenarListaMiembros();
+        internagrupo.llenarListaPendientes();
+       
+        getContent({page:"instrucciones"},false);
+
+    }
+
+    this.crearMarker = function(){
+        if(this.pic!=null){
+
+            $("#marker .pic").css("background-image",'url("'+this.pic+'")');
+
+            html2canvas($("#marker .area"), {
+              onrendered: function(canvas) {
+                usuario.marker = canvas.toDataURL();
+                $("#marker").fadeOut();
+              }
+            });
+        }else{
+            $("#marker").fadeOut();
+        }
     }
 
     this.setGrupo = function(info){
@@ -210,6 +362,7 @@ var Usuario = function(){
         if(lista!=null)  window.localStorage.setItem("notificaciones",JSON.stringify(lista));
         else window.localStorage.setItem("notificaciones",null);
         header.mostrarNotificaciones();
+        invitaciones.llenarLista();
     }
 
     this.cerrarSesion = function(){
@@ -221,3 +374,26 @@ var Usuario = function(){
     }
     
 }
+/*
+function checkGeoPermisos(status) {
+  if(!status.hasPermission) {
+    var errorCallback = function() {
+      
+      new Alerta("Debes permitirnos acceder a tu ubicación para poder usar la aplicación");
+    }
+ 
+    geopermisos.requestPermission(function(status) {
+      if( !status.hasPermission ){
+        errorCallback();
+      }else{
+        consolelog("permiso aceptado");
+
+       // new Alerta("Gracias");
+      }
+    }, errorCallback, geopermisos.ACCESS_FINE_LOCATION);
+  }else{
+
+    //new Alerta("Gracias");
+    consolelog("permiso aceptado");
+  }
+}*/

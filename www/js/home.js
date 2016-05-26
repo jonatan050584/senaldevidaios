@@ -24,6 +24,7 @@ var Home = function(){
 					
 					usuario = new Usuario();
                     usuario.iniciar(res);
+                    
 
 				}else if(res.res == "error"){
 					new Alerta("El email o clave son incorrectos");					
@@ -38,11 +39,11 @@ var Home = function(){
 	new Boton($("#home .login .bt.fb"),function(){
 		var es = new Espera("");
 		facebook.login(function(conectado){
-			console.log("login fb:"+conectado);
+			consolelog("login fb:"+conectado);
 			if(conectado){	
 				es.txt("Obteniendo información del perfil de Facebook...")
 				facebook.myInfo(function(infofb){
-                    console.log(infofb);
+                    consolelog(infofb);
                     
 					  
                     
@@ -115,6 +116,13 @@ var Home = function(){
 
 
 	$("#home .sincuenta").css("top",h-30);
+
+
+	this.mostrar = function(){
+		$("#header").hide();
+
+		Home.prototype.mostrar.call(this);
+	}
 
 }
 

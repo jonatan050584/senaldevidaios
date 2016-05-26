@@ -16,3 +16,13 @@
 #registro h1.titulo{
 	background-image: url("../img/registro.png");
 }
+#registro .btn.atras{
+	text-align: center;
+	color: rgba(225,27,76,1);
+	font-size: 14px;
+	border-bottom: solid 1px rgba(225,27,76,1);
+	margin: auto;
+	margin-bottom: 30px;
+	margin-top: 20px;
+	display: table;
+}
