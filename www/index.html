@@ -15,7 +15,8 @@
     <script src="js/html2canvas.js"></script>
     <script src="js/leaflet/leaflet.js"></script>
     <script src="js/encriptacion.js"></script>
-    <script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3&sensor=true"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3"></script>
+    <script src="js/markerclusterer.js"></script>
 </head>
 <body>
 <div id="fb-root"></div>
@@ -113,6 +114,7 @@
 		</div>
 		
 	</div>
+	<div class="btn blank"></div>
 	<div class="btn menu">
 		<div class="inv"></div>
 	</div>
@@ -124,25 +126,30 @@
 	<div class="btn addcontact"></div>
 	<div class="sep"></div>
 	<div class="btn ubicaciones"></div>
+	<div class="sep"></div>
+	<div class="btn cancelar"></div>
 	
 	<div class="titulo"></div>
 </div>
 <div id="home">
 	
-	<div class="table">
-		<div class="cell">
+	
 			
 			<div class="login">
 				<img src="img/logoes.png" alt="" class="logo">
-				<input class="input" type="email" name="email" placeholder="Email" required>
-				<input class="input" type="password" name="clave" placeholder="Contraseña" required>
+				<div class="cuadro">
+					<input class="input" type="email" name="email" placeholder="Email" required>
+					<input class="input" type="password" name="clave" placeholder="Contraseña" required>
 
-				<div class="bt signin">Ingresa</div>
-				<!--<div class="perdisteclave"><a class="olvidaste">¿Olvidaste tu contraseña?</a></div>-->
+					<div class="bt signin">Ingresa</div>
+					<div class="sincuenta">¿No tienes cuenta? <a class="signup">Regístrate</a></div>
+					
+					
+					<div class="bt fb">Ingresa con Facebook</div>
+					
+					<div class="perdisteclave"><a class="recuperar">¿Olvidaste tu contraseña?</a></div>
+				</div>
 				
-				<div class="txto">- o -</div>
-				<div class="bt fb">Ingresa con Facebook</div>
-				<div class="sincuenta">¿No tienes una cuenta? <a class="signup">Regístrate</a></div>
 			</div>
 
 			<div class="tel">
@@ -175,7 +182,13 @@
 	</form>
 </div>
 <div id="recuperar">
-	
+	<form class="form">
+		<h1 class="titulo">¿Olvidaste tu contraseña?</h1>
+		<div class="txt">Ingresa el email con el que te registraste y te enviaremos los pasos a seguir:</div>
+		<input type="email" name="email" class="input" placeholder="Email">
+		<div class="bt enviar">Enviar solicitud</div>
+		<div class="btn atras">Atrás</div>
+	</form>
 </div>
 
 <div id="instrucciones">
@@ -220,16 +233,7 @@
 </div>
 
 <div id="internagrupo">
-	<!--<div class="edicion">
-		<div class="ventana">
-			<div class="cerrar">+</div>
-			<div class="margen">
-				<div class="titulo">Cambiar nombre</div>
-				<input type="text" name="nombre" class="input" placeholder="Nombre">
-				<div class="bt guardar">Guardar</div>
-			</div>
-		</div>
-	</div>-->
+	
 	<div class="mensajecrear">
 		<div class="contenido">
 			<img src="img/logogrande.png" width="90" alt="" class="logo">
@@ -270,9 +274,47 @@
 	</div>
 </div>
 <div id="ubicacion">
+	<div class="footer">
+		<div class="boton zona">
+			<div class="bola">
+				<div class="ico"></div>
+			</div>
+			<div class="txt">Zona Segura</div>
+		</div>
+		<div class="boton grupo">
+			<div class="bola">
+				<div class="ico"></div>
+			</div>
+			<div class="txt">Grupo Seguro</div>
+		</div>
+		
+	</div>
 	<div id="map-canvas">
 		
 	</div>
+</div>
+
+<div id="config">
+	<h1 class="titulo">EDITAR PERFIL</h1>
+	<div class="form">
+		<input type="text" name="nombres" class="input" placeholder="Nombres">
+		<input type="text" name="apellidos" class="input" placeholder="Apellidos">
+		<input type="text" name="telefono" class="input" placeholder="Teléfono">
+		<input type="text" name="email" class="input" placeholder="Email">
+		<div class="bt guardar">GUARDAR</div>
+	</div>
+	
+</div>
+
+<div id="clave">
+	<h1 class="titulo">CAMBIAR CONTRASEÑA</h1>
+	<div class="form">
+		<input type="password" name="anterior" class="input" placeholder="Contraseña anterior">
+		<input type="password" name="clave" class="input" placeholder="Nueva contraseña">
+		<input type="password" name="clave2" class="input" placeholder="Repite nueva contraseña">
+		<div class="bt cambiar">CAMBIAR</div>
+	</div>
+	
 </div>
 
 <div id="menu">
@@ -285,7 +327,8 @@
 		<div class="item migrupo">Mi grupo</div>
 		<div class="item invitaciones">Invitaciones <div class="cant"></div></div>
 		<div class="item sobre">Sobre Señal de Vida</div>
-		<!--<div class="item config">Configuración</div>-->
+		<div class="item config">Editar perfil</div>
+		<div class="item clave">Cambiar contraseña</div>
 		<div class="item salir">Cerrar sesión</div>
 	</div>
 	<img src="img/unacem.png"  alt="" class="unacem">
@@ -307,8 +350,11 @@
 <script src="js/instrucciones.js"></script>
 <script src="js/invitaciones.js"></script>
 <script src="js/registro.js"></script>
+<script src="js/recuperar.js"></script>
 <script src="js/menu.js"></script>
 <script src="js/sobre.js"></script>
+<script src="js/config.js"></script>
+<script src="js/clave.js"></script>
 <script type="text/javascript">
     app.initialize();
 </script>

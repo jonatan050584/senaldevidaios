@@ -1,29 +1,10 @@
-var Registro = function(){
-	this.dom = $("#registro");
-	this.titulo = "Regístrate";
+var Config = function(){
+	this.dom = $("#config");
 	this.error = false;
-
-	new Boton($("#registro .btn.atras"),function(){
-		getContent({page:"home"},false);
-
-	})
-
-	this.mostrar = function(){
-		$("#registro .form").hide();
-		header.mostrar("back");
-
-		Registro.prototype.mostrar.call(this);
-
-		setTimeout(function(){
-			$("#registro .form").fadeIn(300);
-		},300)
-
-		$("#registro input[name=nombres]").focus();
-	}
-
+	
 	var validarLleno = function(campo){
 
-		var input = $("#registro input[name="+campo+"]");
+		var input = $("#config input[name="+campo+"]");
 		input.removeClass("required");
 		if(input.val()==""){
 			input.addClass("required");
@@ -43,11 +24,10 @@ var Registro = function(){
 		var ret = true;
 	    if (!/^([0-9])*$/.test(numero)) ret = false;
 	    return ret;
-	      
-	  }
+	}
 
-	new Boton($("#registro .bt.guardar"),function(){
-		registro.error = false;
+	new Boton($("#config .bt.guardar"),function(){
+		config.error = false;
 
 		var nom = validarLleno("nombres");
 		var ape = validarLleno("apellidos");
@@ -56,72 +36,73 @@ var Registro = function(){
 		var cla = validarLleno("clave");
 		var recla = validarLleno("reclave");
 
-		if(!registro.error){
+		if(!config.error){
 			
-			if(cla!=recla){
-				msg = "Las contraseñas no coinciden";
-				campo ="reclave";
-				registro.error=true;
-			}
-			if(cla.length<8){
-				msg = "La contraseña debe tener mínimo 8 caracteres";
-				registro.error = true;
-				campo="clave";
-			}
 
 			if(!validarEmail(em)){
 				msg = "Debe ingresar una dirección de email válida";
-				registro.error = true;
+				config.error = true;
 				campo="email";
 			}
 
 			if(!validarSiNumero(tel) || tel.substr(0,1)!="9" || tel.length!=9){
 				msg = "Deben ingresar un número de celular válido";
-				registro.error = true;
+				config.error = true;
 				campo="telefono";
 			}
 
-			if(registro.error){
+			if(config.error){
 				new Alerta(msg);
-				$("#registro input[name="+campo+"]").addClass("required");
+				$("#config input[name="+campo+"]").addClass("required");
 			}else{
-
-				//registrar
 
 				
 
-				new Request("usuario/registrar",{
+				new Request("usuario/actualizarinfo",{
 					nombres:nom,
 					apellidos:ape,
 					email:em,
 					telefono:tel,
-					clave:cla
+					llave:usuario.llave
 				},function(res){
 					
 					if(res.error){
 						new Alerta(res.msg);
 					}else{
+
+						new Alerta("Los datos se actualizaron con éxito");
+
+						if(usuario.grupo!=null){
+							new Request("grupo/listarmiembros",{
+			                    llave:usuario.grupo.llave
+			                },function(lista){
+			                    usuario.setMiembros(lista);
+			                })
+							usuario.nombres = nom;
+							usuario.apellidos = ape;
+							usuario.telefono = tel;
+							usuario.email = em;
+						}
 						
-						usuario = new Usuario();
-						usuario.iniciar(res);
 					}
 
 				},{
-					espera:"Registrando..."
+					espera:""
 				})
 
 			}
 		
 		}
-
-		
-		
-
-		
-
-
-	});
+	})
 	
-	
+	this.mostrar = function(){
+		header.mostrar("back");
+		$("#config input[name=nombres]").val(usuario.nombres);
+		$("#config input[name=apellidos]").val(usuario.apellidos);
+		$("#config input[name=telefono]").val(usuario.telefono);
+		$("#config input[name=email]").val(usuario.email);
+
+		Config.prototype.mostrar.call(this);
+	}
 }
-Registro.prototype = new Seccion();
+Config.prototype = new Seccion();

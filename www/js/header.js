@@ -12,7 +12,7 @@ var Header = function(){
 			var btns = botones.split(",");
 			$.each(btns,function(k,v){
 				$("#header .btn."+v).show();
-			})
+			});
 		}
 		if(titulo!=undefined){
 			$("#header .titulo").html(titulo);
@@ -22,7 +22,7 @@ var Header = function(){
 			$("#header").removeClass("nologo");
 		}
 		
-
+		
 	}
 
 	this.setButton = function(nom,callback){
@@ -100,12 +100,12 @@ var Header = function(){
 		if(total<10){
 
 			//getContent({page:"contactos"},true);
-			/*if(production){
+			if(production){
 				consolelog("aca");
 				
 
-				permissions = window.plugins.permissions;
-				permissions.hasPermission(checkPermissionCallback, null, permissions.READ_CONTACTS);
+				//permissions = window.plugins.permissions;
+				//permissions.hasPermission(checkPermissionCallback, null, permissions.READ_CONTACTS);
 				 
 				
 
@@ -113,14 +113,13 @@ var Header = function(){
 
 
 				
-				//listarContactos();
+				listarContactos();
 				
 							
 			}else{
 				listarContactos();
 				
-			}*/
-			listarContactos();
+			}
 		}else{
 			new Alerta("El grupo solo puede tener 10 miembros como máximo");
 		}

@@ -6,12 +6,260 @@ var Ubicacion = function(){
 	this.titulo = "Ubicación";
 	this.contactos = null;
 	this.markers = new Array();
+	this.mids = new Array();
+	this.zona = null;
+	this.myMarker = null;
+	this.zonaMarker = null;
 
+	new Boton($("#ubicacion .footer .boton.zona"),function(){
+		if(usuario.grupo.zonasegura_id==null){
+			if(usuario.admin==true){
+				new Alerta("Aún no defines el punto de encuentro seguro para tu grupo","Establecer",function(){
+
+					header.mostrar("blank,cancelar","Selecciona una zona segura");
+					new Boton($("#header .btn.cancelar"),function(){
+						$.each(ubicacion.markers,function(k,v){
+							v.setMap(null);
+						});
+
+						ubicacion.markers = new Array();
+						
+						$("#ubicacion .footer").show();
+						header.mostrar("menu");
+
+						google.maps.event.clearListeners(mapa, 'idle');
+					});
+					$("#ubicacion .footer").hide();
+
+					
+					mapa.setZoom(16); 
+
+					ubicacion.fetchData();
+					google.maps.event.addListener(mapa, 'idle', ubicacion.fetchData);
+
+					
+				});
+			}else{
+				new Alerta("El punto de encuentro seguro para tu grupo aún no ha sido definido");				
+			}
+			
+		}else{
+			var bounds = new google.maps.LatLngBounds();
+		    bounds.extend(ubicacion.myMarker.getPosition());
+		    bounds.extend(ubicacion.zonaMarker.getPosition());
+		    mapa.fitBounds(bounds);
+		}
+	})
+	new Boton($("#ubicacion .footer .boton.grupo"),function(){
+		getContent({page:"internagrupo"},true);
+	})
 
 	this.mostrar = function(){
-		header.mostrar("back");
+		console.log(usuario.grupo);
+		header.mostrar("menu");
+		$("#ubicacion .footer").show();
+		
+		try{
+			google.maps.event.clearListeners(mapa, 'idle');
+		}catch(e){
+			consolelog(e);
+		}
+		
+		
+
+
 		this.iniciarMapa();
+
 		Ubicacion.prototype.mostrar.call(this);
+	}
+
+	
+
+
+
+	this.fetchData = function(){
+
+		
+
+		if(mapa.getZoom()>=16){
+
+			
+
+
+			var bounds = mapa.getBounds();
+
+			var sw = bounds.getSouthWest();
+            var ne = bounds.getNorthEast();
+
+			var query = 'SELECT Id, Location from 14CvUJcWarekr8I4V6p_ot2OnRKhH9j-mkbUpKPcK '+
+						'where ST_INTERSECTS(Location, RECTANGLE(LATLNG'+sw+', LATLNG'+ne+'))';
+			var encodedQuery = encodeURIComponent(query);
+
+			// Construct the URL
+			var url = ['https://www.googleapis.com/fusiontables/v1/query'];
+				url.push('?sql=' + encodedQuery);
+				url.push('&key=AIzaSyDYtz56ICf_rXN1pTXXutzGVkyDOa5Zo0U');
+				url.push('&callback=?');
+			$.ajax({
+				url: url.join(''),
+				dataType: 'jsonp',
+				success: ubicacion.onDataFetched
+			});
+		}
+	}
+
+	this.onDataFetched = function(data){
+
+		
+		$.each(ubicacion.markers,function(k,v){
+			v.setMap(null);
+		});
+
+		ubicacion.markers = new Array();
+		
+
+		var rows = data['rows'];
+        var iconUrl;
+        var content;
+        var coordinate;
+
+        // Copy each row of data from the response into variables.
+        // Each column is present in the order listed in the query.
+        // Starting from 0.
+        // EDIT this if you've changed the columns, above.
+
+        
+        
+		for (var i in rows) {
+			var id = rows[i][0];
+			var latlng = rows[i][1].split(",");
+
+			coordinate = new google.maps.LatLng(latlng[0],latlng[1]);
+
+			ubicacion.createMarker(id,coordinate);
+
+			
+		}
+
+		
+		
+
+
+
+	}
+	this.createMarker = function(id,coor){
+		
+		
+
+		var marker = new google.maps.Marker({
+			map: mapa,
+			position: coor,
+			icon: ubicacion.iconzona
+		});
+		google.maps.event.addListener(marker, 'click', function(event) {
+			ubicacion.verZona(id,coor);
+		});
+		this.markers.push(marker);
+		
+		
+		
+		
+	}
+
+	
+	this.verZona = function(id,coor){
+
+	
+
+		new Alerta('<img src="img/escudo.jpg" width="49" height="auto"><br><br><strong>Latitud:</strong> '+coor.lat()+'<br><strong>Longitud:</strong> '+coor.lng(),"Seleccionar",function(){
+    		new Request("grupo/establecerzonasegura",{
+    			llave:usuario.llave,
+    			zona:id
+    		},function(res){
+    			if(res.res=="ok"){
+    				usuario.setGrupo(res.grupo);
+    				$.each(ubicacion.markers,function(k,v){
+						v.setMap(null);
+					});
+
+					ubicacion.markers = new Array();
+
+					google.maps.event.clearListeners(mapa, 'idle');
+					ubicacion.setZona();
+    				$("#ubicacion .footer").show();
+					header.mostrar("menu");
+
+					$.each(usuario.miembros,function(k,v){
+						if(v.id!=usuario.id){
+							socket.emit("directo",{ac:"zonasegura",id:v.id});
+						}
+					})
+
+    			}else{
+    				new Alerta("Ocurrió algún tipo de error");
+    			}
+    		},{
+    			espera:""
+    		})		
+    	});
+	}
+
+	this.setZona = function(){
+
+
+		if(usuario.grupo!=null && usuario.grupo.zonasegura_id!=null){
+			var pos = new google.maps.LatLng(usuario.grupo.latitud,usuario.grupo.longitud);
+
+			this.zonaMarker = new google.maps.Marker({
+				map: mapa,
+				position: pos,
+				icon: ubicacion.iconzona
+			});
+			google.maps.event.addListener(this.zonaMarker, 'click', function(event) {
+				//ubicacion.verZona(id,coor);
+				var boton = "OK";
+
+				if(usuario.admin==true){
+					boton="Cambiar";
+				}
+				new Alerta('<img src="img/escudo.jpg" width="49" height="auto"><br><br><strong>Latitud:</strong> '+usuario.grupo.latitud+'<br><strong>Longitud:</strong> '+usuario.grupo.latitud,boton,function(){
+					if(usuario.admin==true){
+						ubicacion.zonaMarker.setMap(null);
+
+
+						header.mostrar("blank,cancelar","Selecciona una zona segura");
+						new Boton($("#header .btn.cancelar"),function(){
+							$.each(ubicacion.markers,function(k,v){
+								v.setMap(null);
+							});
+
+							ubicacion.markers = new Array();
+							
+							$("#ubicacion .footer").show();
+							header.mostrar("menu");
+
+							google.maps.event.clearListeners(mapa, 'idle');
+
+							ubicacion.zonaMarker.setMap(mapa);
+
+						});
+						$("#ubicacion .footer").hide();
+
+						
+						mapa.setZoom(16); 
+
+						ubicacion.fetchData();
+						google.maps.event.addListener(mapa, 'idle', ubicacion.fetchData);
+
+
+					}else{
+						$("#alerta").hide();
+					}
+					
+
+				});
+			});
+		}
 	}
 
 	this.iniciarMapa = function(){
@@ -20,14 +268,32 @@ var Ubicacion = function(){
 
 
 			navigator.geolocation.getCurrentPosition(function(pos){
-				consolelog(pos);
+				
 				ubicacion.cargarMapa(pos.coords.latitude,pos.coords.longitude);
+			
 			}, function(pos){
 				new Alerta("Necesitamos acceder a tu ubicación actual para mostrar el mapa");
 			});
 
 			
+		}else{
+			if(ubicacion.markers.length>0){
+				$.each(ubicacion.markers,function(k,v){
+					v.setMap(null);
+				});
+
+				ubicacion.markers = new Array();
+			}
+			
+			try{
+				ubicacion.zonaMarker.setMap(null);
+			}catch(e){ 
+
+			}
+
+			this.setZona();
 		}
+
 		/*var idsMiembros = new Array();
 		$.each(internagrupo.miembros,function(key,val){
 			idsMiembros.push(val.id);
@@ -46,6 +312,7 @@ var Ubicacion = function(){
 
 
 	this.cargarMapa = function(lat,lng){
+	
 		var styles = [
 	      {
 	        featureType:"poi.business",
@@ -60,7 +327,7 @@ var Ubicacion = function(){
 
 	    var mapOptions = {
 	      center: new google.maps.LatLng(lat,lng),
-	      zoom: 15,
+	      zoom: 16,
 	      //mapTypeId: 'OSM',
 	      streetViewControl:false,
 	      mapTypeControl:false,
@@ -80,7 +347,12 @@ var Ubicacion = function(){
             maxZoom: 18
         }));
 
-
+	    ubicacion.iconzona = {
+			url:'img/zona.png',
+			scaledSize:new google.maps.Size(30, 39),
+			origin: new google.maps.Point(0, 0),
+			anchor: new google.maps.Point(15,20)
+		};
 
 
 	    var icono = {
@@ -88,7 +360,7 @@ var Ubicacion = function(){
 	    	scaledSize: new google.maps.Size(45, 60)
 	    }
 
-	    var marker = new google.maps.Marker({
+	    ubicacion.myMarker = new google.maps.Marker({
 	      clickable:true,
 	     	
 	      icon: icono,
@@ -98,6 +370,8 @@ var Ubicacion = function(){
 	      position:{lat:lat,lng:lng}
 	    });
 
+
+	    this.setZona();
 
 
 

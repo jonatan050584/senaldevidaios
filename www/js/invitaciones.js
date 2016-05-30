@@ -92,7 +92,8 @@ var ItemInvitacion = function(d){
 	                usuario.setGrupo(res.grupo);
 					usuario.setMiembros(res.miembros);
 					usuario.setInvitaciones(res.invitaciones);
-					
+					consolelog("-------miembros------");
+					consolelog(usuario.miembros);
 					$.each(usuario.miembros,function(k,v){
 						if(v.id!=usuario.id){
 							socket.emit("directo",{ac:"invitacionaceptada",id:v.id});	

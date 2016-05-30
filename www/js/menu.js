@@ -1,12 +1,15 @@
-var Menu = function(){
+var Menu = function(fbid){
 	this.dom = $("#menu");
 	if(usuario.pic!=null) $("#menu .pic").css("background-image",'url("'+usuario.pic+'")')
-	$("#menu .nombre").html(usuario.nombres+" "+usuario.apellidos);
-	$("#menu .telefono").html(usuario.telefono);
 
-
+	if(fbid!=null){
+		$("#menu .clave").hide();
+	}
 
 	this.mostrar = function(){
+		$("#menu .nombre").html(usuario.nombres+" "+usuario.apellidos);
+		$("#menu .telefono").html(usuario.telefono);
+
 		$("#header .back").hide();
 		$("#header").hide();
 
@@ -48,6 +51,12 @@ var Menu = function(){
 	})
 	new Boton($("#menu .sobre"),function(){
 		getContent({page:"sobre"},true)
+	})
+	new Boton($("#menu .config"),function(){
+		getContent({page:"config"},true);
+	})
+	new Boton($("#menu .clave"),function(){
+		getContent({page:"clave"},true);
 	})
 }
 Menu.prototype = new Seccion();

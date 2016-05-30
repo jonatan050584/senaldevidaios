@@ -54,9 +54,7 @@ var Usuario = function(){
         flaglogin=true;
 
 
-        header.setButton("back",function(){
-            history.back();
-        })
+        
 
         if(production) socket = io.connect('http://picnic.pe:8883');
         else socket = io.connect('http://picnic.pe:8883');
@@ -124,6 +122,8 @@ var Usuario = function(){
         });
 
         socket.on("directo",function(data){
+            consolelog("socket");
+            consolelog(data);
             switch(data.ac){
                 case "nuevoinvitado":
                     
@@ -230,10 +230,18 @@ var Usuario = function(){
 
 
                     break;
-                case "meeliminaron":
-                    new Alerta("Has sido retirado del Grupo de Seguridad por el administrador");
-                    break;
+                case "zonasegura":
 
+                    new Request("grupo/info",{
+                        llave:usuario.llave
+                    },function(res){
+                        usuario.setGrupo(res.grupo);
+                        try{
+                            ubicacion.zonaMarker.setMap(null);;
+                        }catch(e){}
+                        ubicacion.setZona();
+                    });
+                    break;
             }
             
         })
@@ -303,8 +311,9 @@ var Usuario = function(){
         invitaciones = new Invitaciones();
         sobre = new Sobre();
         instrucciones = new Instrucciones();
-        menu =  new Menu();
-
+        menu =  new Menu(this.fbid);
+        config = new Config();
+        clave = new Clave();
         
         
         
@@ -338,6 +347,8 @@ var Usuario = function(){
         }
     }
 
+   
+
     this.setGrupo = function(info){
         this.grupo = info;
         window.localStorage.setItem("grupo",JSON.stringify(info));
@@ -355,6 +366,13 @@ var Usuario = function(){
         internagrupo.llenarListaPendientes();
 
     }
+
+    this.setZonaSegura = function(id,lat,lng){
+        this.grupo.zonasegura_id = id;
+        this.grupo.latitud = lat;
+        this.grupo.longitud = lng;
+    }
+
     this.setNotificaciones = function(lista){
         this.notificaciones = lista;
        
@@ -374,8 +392,7 @@ var Usuario = function(){
     }
     
 }
-/*
-function checkGeoPermisos(status) {
+/*function checkGeoPermisos(status) {
   if(!status.hasPermission) {
     var errorCallback = function() {
       

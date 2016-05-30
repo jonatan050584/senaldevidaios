@@ -15,6 +15,9 @@ var menu;
 var sobre;
 var instrucciones;
 var bd;
+var recuperar;
+var config;
+var clave;
 
 var geopermisos;
 
@@ -129,6 +132,8 @@ var app = {
         w = $(window).innerWidth();
         h = $(window).innerHeight();
 
+        
+
         new Boton($("#contacto .cerrar"),function(){
             $("#contacto").hide();
         });
@@ -172,7 +177,9 @@ var app = {
 
         
         header = new Header();
-
+        header.setButton("back",function(){
+            history.back();
+        })
 
         
         if(window.localStorage.getItem("usuario")==null){
@@ -183,6 +190,7 @@ var app = {
             home = new Home();
             
             registro = new Registro();
+            recuperar = new Recuperar();
 
             facebook = new Facebook();
 
@@ -368,73 +376,63 @@ window.onpopstate = function(event) {
 
 
 function getContent(obj,addEntry){
-
-
     
-    
+    if(obj!=null){
 
-    var antseccion = seccion;
-    seccion=obj.page;
+        var antseccion = seccion;
+        seccion=obj.page;
 
-    //consolelog(window[antseccion]);
 
-   
-    //if(antseccion!=""){
-        //if(seccion=="home"){
-            //if(!flaglogin) window[antseccion].ocultar();    
-        //}else{
-    try{
-        window[antseccion].ocultar();    
-    }catch(e){
-        consolelog(e);
-    }
-        //}
-        
-    //}
-       
-    switch(seccion){
-        
-        case "internagrupo":
+        try{
+            window[antseccion].ocultar();    
+        }catch(e){
+            consolelog(e);
+        }
+      
+        switch(seccion){
+
+            case "internagrupo":
+                try{
+                    internagrupo.mostrar(obj.grupo,obj.nombre);
+                }catch(e){
+                    //console.log(e);
+                     navigator.app.exitApp();
+                }
+                
+                break;
+            default:
             try{
-                internagrupo.mostrar(obj.grupo,obj.nombre);
+                window[seccion].mostrar();
             }catch(e){
                 //console.log(e);
-                 navigator.app.exitApp();
+                navigator.app.exitApp();
             }
-            
-            break;
-        default:
-        try{
-            window[seccion].mostrar();
-        }catch(e){
-            //console.log(e);
-            navigator.app.exitApp();
+
+           
         }
 
-       
+        
+
+
+
+        if(addEntry == true) {
+            history.pushState(obj,null); 
+        }
+    }else{
+        
+        if(flaglogin==false){
+            getContent({page:"home"},false);    
+        }else{
+            navigator.app.exitApp();
+        }
+        
     }
+   
+
 
     
-
-    //if(menu.abierto) menu.cerrar();
-
-    
-
 
    
-   
-    
-
-    
-
-    //window[antseccion].ocultar();
-    //window[seccion].mostrar();
-
-    if(addEntry == true) {
-        history.pushState(obj,null); 
-    }
-
-    //window.scrollTo(0,0);
 
     
     

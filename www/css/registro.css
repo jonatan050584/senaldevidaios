@@ -26,3 +26,15 @@
 	margin-top: 20px;
 	display: table;
 }
+#registro .input{
+	background-color: #f8f8f9;
+}
+#registro .input::-webkit-input-placeholder {
+   color: #a2a1b8;
+}
+#registro .input.required::-webkit-input-placeholder {
+   color: #e11b4c;
+}
+#registro .input.required{
+	color: #e11b4c;
+}

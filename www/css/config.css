@@ -1,0 +1,14 @@
+#config{
+	display: none;
+	padding-top: 50px;
+}
+#config .titulo{
+	background-image: url("../img/config.jpg");
+
+}
+#config input.input:first-child{
+	border-top: solid 1px #d5d5d8;
+}
+#config .bt.guardar{
+	margin-top: 40px;
+}

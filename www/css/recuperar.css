@@ -1,0 +1,43 @@
+#recuperar{
+	padding-top: 50px;
+	display: none;
+}
+#recuperar .titulo{
+	text-align: center;
+	background-image: url("../img/candado.jpg");
+	padding-left: 15px;
+
+}
+#recuperar .txt{
+	border-top:solid 1px #d0d0d3;
+	border-bottom:solid 1px #d0d0d3;
+	text-align: center;
+	font-size: 14px;
+	color: #a2a1b8;
+	line-height: 17px;
+	padding: 17px 30px;
+
+}
+#recuperar .input{
+	background-color: #f8f8f9;
+	margin-bottom: 44px;
+}
+#recuperar .input::-webkit-input-placeholder {
+   color: #a2a1b8;
+}
+#recuperar .input.required::-webkit-input-placeholder {
+   color: #e11b4c;
+}
+#recuperar .input.required{
+	color: #e11b4c;
+}
+#recuperar .btn.atras{
+	text-align: center;
+	color: rgba(225,27,76,1);
+	font-size: 14px;
+	border-bottom: solid 1px rgba(225,27,76,1);
+	margin: auto;
+	margin-bottom: 30px;
+	margin-top: 20px;
+	display: table;
+}

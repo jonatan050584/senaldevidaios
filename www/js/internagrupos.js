@@ -98,7 +98,7 @@ var Internagrupo = function(){
 		
 
 		if(usuario.grupo==null){ //no tiene grupo
-			header.mostrar("menu,ubicaciones","");
+			header.mostrar("menu","");
 			$("#internagrupo").addClass("singrupo");
 		}else{ //si tiene grupo
 			
@@ -125,7 +125,7 @@ var Internagrupo = function(){
 
 	this.llenarListaMiembros = function(){
 		consolelog("llenarlistamiembros");
-		console.log(usuario.miembros);
+		consolelog(usuario.miembros);
 		$("#internagrupo .lista .miembros").empty();
 		
 		if(usuario.miembros!=null){

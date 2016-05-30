@@ -254,7 +254,7 @@ var Contactos = function(){
 							espera:""
 						})
 
-						window.plugins.socialsharing.shareViaSMS('Instala Señal de Vida en tu smartphone y mantengámonos conectados en caso de Sismo. Visita https://goo.gl/PCzl2C para descargarlo',tel,function(msg){
+						window.plugins.socialsharing.shareViaSMS('Instala Señal de Vida en tu smartphone y mantengámonos conectados en caso de Sismo. Visita http://unacemsenaldevida.com/ para descargarlo',tel,function(msg){
 							
 						},function(msg) {
 							alert('error: ' + msg);

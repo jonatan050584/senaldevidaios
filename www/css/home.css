@@ -16,9 +16,8 @@
 #home .logo{
 	display: block;
 	margin: auto;
-	width: 120px;
-	height: auto;
-	margin-bottom: 20px;
+	height: 100px;
+	width: auto;
 	
 }
 #home .logo.short{
@@ -38,9 +37,13 @@
 	padding-top: 10px;
 	text-align: center;
 }
+#home a.recuperar{
+	color: #2b2d3a;
+	border-bottom: solid 1px #2b2d3a;
+}
 
 #home .login{
-	margin-top: 10px;
+	
 }
 #home .bt.signin{
 	margin-top: 20px;
@@ -49,12 +52,17 @@
 	background: #2d5eb8;
 	color: #fff;
 }
-
+#home .cuadro{
+	
+	width: 100%;
+	height: 300px;
+	background-color: #fff;
+}
 #home .sincuenta{
 	text-align: center;
-	position: fixed;
-	width: 100%;
-	
+
+	padding-top: 15px;
+	padding-bottom: 15px;
 	font-size: 13px;
 }
 

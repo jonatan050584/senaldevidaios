@@ -1,0 +1,14 @@
+#clave{
+	display: none;
+	padding-top: 50px;
+}
+#clave .titulo{
+	background-image: url("../img/config.jpg");
+
+}
+#clave input.input:first-child{
+	border-top: solid 1px #d5d5d8;
+}
+#clave .bt.cambiar{
+	margin-top: 40px;
+}

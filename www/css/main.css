@@ -8,6 +8,9 @@
 @import url("menu.css");
 @import url("sobre.css");
 @import url("instrucciones.css");
+@import url("recuperar.css");
+@import url("config.css");
+@import url("clave.css");
 
 body{
 	margin: 0px;
@@ -60,7 +63,7 @@ a.over{
 	font-family: 'montserratlight';
 	color: #5b5b5b;
 	text-align: center;
-	font-size: 15px;
+	font-size: 14px;
 }
 .input::-webkit-input-placeholder {
    color: #d5d5d8;
@@ -159,6 +162,13 @@ a.over{
 	left: 0px;
 	position: absolute;
 }
+#header .btn.blank{
+	background:none;
+	left: 0px;
+	width: 50px;
+	height: 50px;
+	float: left;
+}
 
 #header .btn.menu .inv{
 	display: none;
@@ -191,6 +201,12 @@ a.over{
 	display: block;
 	background-image: url("../img/ubicacionico.png");
 	background-size: auto 27px;
+	
+}
+#header .btn.cancelar{
+	display: block;
+	background-image: url("../img/cancel.png");
+	background-size: auto 18px;
 	
 }
 #header .btn.opciones{

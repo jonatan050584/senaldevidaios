@@ -2,10 +2,12 @@ var Home = function(){
 
 	this.dom = $("#home");
 	
-
+	new Boton($("#home a.recuperar"),function(){
+		getContent({page:"recuperar"},true);
+	})
 
 	new Boton($("#home a.signup"),function(){
-		getContent({page:"registro"},false);
+		getContent({page:"registro"},true);
 	});
 
 
@@ -114,8 +116,12 @@ var Home = function(){
 		
 	})
 
+	var pt = ((h-320)-100)/2;
+	$("#home .login").css("padding-top",pt);
 
-	$("#home .sincuenta").css("top",h-30);
+	var cpt = h-(pt+100)-300-20;
+
+	$("#home .cuadro").css("padding-top",cpt);
 
 
 	this.mostrar = function(){
