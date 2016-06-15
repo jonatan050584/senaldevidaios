@@ -254,7 +254,7 @@ var Contactos = function(){
 							espera:""
 						})
 
-						window.plugins.socialsharing.shareViaSMS('Instala Señal de Vida en tu smartphone y mantengámonos conectados en caso de Sismo. Visita http://unacemsenaldevida.com/ para descargarlo',tel,function(msg){
+						window.plugins.socialsharing.shareViaSMS('Instala Señal de Vida en tu smartphone y mantengámonos conectados en caso de Sismo. Visita https://goo.gl/PCzl2C para descargarlo',tel,function(msg){
 							
 						},function(msg) {
 							alert('error: ' + msg);
@@ -297,11 +297,15 @@ var Contactos = function(){
 								getContent({page:"internagrupo"},true);
 								
 								//Notificamos a los demás miembros del grupo que se ha invitado a alguien más
-								$.each(usuario.miembros,function(k,v){ 
+								/*$.each(usuario.miembros,function(k,v){ 
 									if(v.id!=usuario.id){
 										socket.emit("directo",{ac:"nuevoinvitado",id:v.id});
 									}
-								});
+								});*/
+								socket.emit("algrupo",{grupo:usuario.grupo.llave,ac:"nuevoinvitado"});
+
+
+
 								
 								//Notificamos al invitado
 								socket.emit("directo",{ac:"invitacion",id:res.info.id});

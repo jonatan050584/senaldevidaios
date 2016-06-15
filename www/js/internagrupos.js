@@ -35,6 +35,9 @@ var Internagrupo = function(){
 			usuario.setMiembros(miembros);
 
 			internagrupo.mostrar();
+
+			socket.emit("join",usuario.grupo.llave);
+
 		},{
 			espera:""
 		})
@@ -55,6 +58,8 @@ var Internagrupo = function(){
 				llave:usuario.llave,
 				admin:usuario.admin
 			},function(res){
+				
+				socket.emit("leave",usuario.grupo.llave);
 
 				if(usuario.miembros!=null){
 					$.each(usuario.miembros,function(k,v){

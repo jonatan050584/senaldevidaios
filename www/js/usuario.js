@@ -46,18 +46,19 @@ var Usuario = function(){
         }
 
 
-        /*if(production){
-            geopermisos = window.plugins.permissions;
-            geopermisos.hasPermission(checkGeoPermisos, null, geopermisos.ACCESS_FINE_LOCATION);
-        }*/
+        if(production){
+            //geopermisos = window.plugins.permissions;
+            //geopermisos.hasPermission(checkGeoPermisos, null, geopermisos.ACCESS_FINE_LOCATION);
+        }
 
         flaglogin=true;
 
 
         
 
-        if(production) socket = io.connect('http://picnic.pe:8883');
-        else socket = io.connect('http://picnic.pe:8883');
+        //if(production) socket = io.connect('http://picnic.pe:8883');
+        if(production) socket = io.connect('http://192.168.0.17:8884');
+        else socket = io.connect('http://localhost:8884');
 
         socket.on("connect", function() {
 
@@ -88,7 +89,9 @@ var Usuario = function(){
                     llave:usuario.grupo.llave
                 },function(lista){
                     usuario.setMiembros(lista);
-                })
+                });
+
+
 
                 
             }
@@ -99,24 +102,13 @@ var Usuario = function(){
             
             socket.emit('check in',{id:usuario.id});
 
-            /*var opciones = {
-                maximumAge: 15000,
-                enableHighAccuracy:true,
+            if(usuario.grupo!=null){
+                socket.emit("join",usuario.grupo.llave);
+            }
 
-            };
-            navigator.geolocation.watchPosition(function(position){
-                
-                socket.emit('enviarposicion',{
-                    id:usuario.id,
-                    lat:position.coords.latitude,
-                    lon:position.coords.longitude,
-                    from:'foreground'
-                });
-
-            },function(e){
-                consolelog('error watchposition: '+e);
-            },opciones);*/
-
+            
+            geoposicion = new Geoposicion();
+            geoposicion.iniciar();
 
             
         });
@@ -203,6 +195,9 @@ var Usuario = function(){
                     })
                     break;
                 case "membresiaeliminada":
+
+                    socket.emit("leave",usuario.grupo.llave);
+
                     $(".alerta").hide();
                     usuario.setGrupo(null);
                     usuario.setMiembros(null);
@@ -241,6 +236,30 @@ var Usuario = function(){
                         }catch(e){}
                         ubicacion.setZona();
                     });
+                    break;
+                case "posicion":
+                    consolelog("---posicion---");
+                    consolelog(data.id);
+                    consolelog(data.posicion);
+                    //consolelog(enc.desencriptar(data.posicion,usuario.grupo.llave));
+
+                    if(usuario.miembros!=null){
+                        $.each(usuario.miembros,function(k,v){
+                            if(v.id == data.id){
+                                v.posicion = data.posicion;
+                                v.timestamp = data.timestamp;
+
+                                
+
+                            }
+
+
+
+                            
+                        })
+                        
+                    }
+
                     break;
             }
             
@@ -329,6 +348,51 @@ var Usuario = function(){
        
         getContent({page:"instrucciones"},false);
 
+
+
+
+        if(production){
+            var push = PushNotification.init({
+                android: {
+                    senderID: "171369010058"
+                },
+                ios: {
+                    alert: "true",
+                    badge: "true",
+                    sound: "true"
+                }
+            });
+
+            push.on('registration', function(data) {
+                console.log(data);
+                // data.registrationId
+                usuario.registrationId = data.registrationId;
+
+                new Request("usuario/setpush",{
+                    "llave":usuario.llave,
+                    "registrationId":usuario.registrationId
+                });
+
+            });
+
+            push.on('notification', function(data) {
+                consolelog(data);
+                // data.message,
+                // data.title,
+                // data.count,
+                // data.sound,
+                // data.image,
+                // data.additionalData
+            });
+
+            push.on('error', function(e) {
+                consolelog(e);
+                // e.message
+            });
+        
+        
+        }
+
     }
 
     this.crearMarker = function(){
@@ -350,6 +414,9 @@ var Usuario = function(){
    
 
     this.setGrupo = function(info){
+         
+    
+
         this.grupo = info;
         window.localStorage.setItem("grupo",JSON.stringify(info));
 
@@ -392,7 +459,7 @@ var Usuario = function(){
     }
     
 }
-/*function checkGeoPermisos(status) {
+function checkGeoPermisos(status) {
   if(!status.hasPermission) {
     var errorCallback = function() {
       
@@ -413,4 +480,4 @@ var Usuario = function(){
     //new Alerta("Gracias");
     consolelog("permiso aceptado");
   }
-}*/
+}

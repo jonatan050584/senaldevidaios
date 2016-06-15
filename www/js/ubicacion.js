@@ -373,6 +373,7 @@ var Ubicacion = function(){
 
 	    this.setZona();
 
+	    this.verMiembros();
 
 
 		//var db = window.sqlitePlugin.openDatabase({name: "limamapa.sqlite"});
@@ -399,7 +400,26 @@ var Ubicacion = function(){
 
 		
 	})*/
+	this.verMiembros = function(){
+		consolelog("miembros");
+		$.each(usuario.miembros,function(k,v){
+			consolelog(v);
+			if(v.posicion!=undefined && usuario.grupo!=null && v.id != usuario.id){
+				var pos = String(enc.desencriptar(v.posicion,usuario.grupo.llave)).split(",");
+				consolelog(pos);
+				var miembromarker = new google.maps.Marker({
+                  clickable:true,
+                  zIndex:999,
+                  map:mapa,
+                  position:{lat:parseFloat(pos[0]),lng:parseFloat(pos[1])}
+                });
 
+			}
+			
+
+		})
+
+	}
 	this.onError = function(error){
 		consolelog('code: '    + error.code    + '\n' +  'message: ' + error.message + '\n');
 	}

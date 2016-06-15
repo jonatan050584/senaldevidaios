@@ -18,8 +18,10 @@ var bd;
 var recuperar;
 var config;
 var clave;
+var geoposicion;
 
 var geopermisos;
+var enc = new Enc();
 
 var appkey = "miclave";
 
@@ -32,11 +34,17 @@ var h; //alto de pantalla
 
 var terremoto = false;
 
-var version = "1.0.1";
+var version = "1.0.5";
+
+var backtimer;
+var sendtimer;
+
+var temppos;
 
 if(production){
 
-    pathapi = "http://picnic.pe/clientes/lifesignal/api3/";
+    //pathapi = "http://picnic.pe/clientes/lifesignal/api3/";
+    pathapi = "http://192.168.0.17/lifesignal/api2/";
 }else{
   
     pathapi = "http://localhost/lifesignal/api2/";
@@ -87,45 +95,64 @@ var app = {
        
         //alert("resume");
         //alert(1);
-        //backgroundGeoLocation.stop()
-        
+        if(usuario.grupo!=undefined && usuario.grupo!=null){
+            backgroundGeoLocation.stop();
+            clearInterval(backtimer);
+        }
         //comprobarVersion();
         
     },
     onDevicePause:function(){
 
+        if(usuario.grupo!=undefined && usuario.grupo!=null){
+            var callbackFn = function(location) {
+                consolelog('[js] BackgroundGeoLocation callback:  ' + location.latitude + ',' + location.longitude);
 
-        /*
-        var callbackFn = function(location) {
-            consolelog('[js] BackgroundGeoLocation callback:  ' + location.latitude + ',' + location.longitude);
 
-            socket.emit('enviarposicion',{
-                id:usuario.id,
-                lat:location.latitude,
-                lon:location.longitude,
-                from:'background'
+                var posicion = location.latitud+","+location.longitude;
+
+                posicion = enc.encriptar(posicion,usuario.grupo.llave);
+
+                socket.emit("algrupo",{ac:"posicion",grupo:usuario.grupo.llave,id:usuario.id,posicion:posicion,de:"back"});
+
+                
+                backgroundGeoLocation.finish();
+
+                backtimer = setInterval(function(){
+                    navigator.geolocation.getCurrentPosition(function(pos){
+                            tempos = pos;
+                    });
+                },5000);
+
+                sendtimer = setInterval(function(){
+                    var posicion = tempos.coords.latitude+","+tempos.coords.longitude;
+
+                    posicion = enc.encriptar(posicion,usuario.grupo.llave);
+
+                    socket.emit("algrupo",{ac:"posicion",grupo:usuario.grupo.llave,id:usuario.id,posicion:posicion,de:"backtimer"});
+                },1000*60);
+
+            };
+
+            var failureFn = function(error) {
+                consolelog('BackgroundGeoLocation error');
+            };
+
+            // BackgroundGeoLocation is highly configurable. See platform specific configuration options
+            backgroundGeoLocation.configure(callbackFn, failureFn, {
+                desiredAccuracy: 10,
+                stationaryRadius: 20,
+                distanceFilter: 30,
+                debug: false, // <-- enable this hear sounds for background-geolocation life-cycle.
+                stopOnTerminate: false, // <-- enable this to clear background location settings when the app terminates
             });
-            backgroundGeoLocation.finish();
 
-
-        };
-
-        var failureFn = function(error) {
-            consolelog('BackgroundGeoLocation error');
-        };
-
-        // BackgroundGeoLocation is highly configurable. See platform specific configuration options
-        backgroundGeoLocation.configure(callbackFn, failureFn, {
-            desiredAccuracy: 10,
-            stationaryRadius: 20,
-            distanceFilter: 30,
-            debug: false, // <-- enable this hear sounds for background-geolocation life-cycle.
-            stopOnTerminate: false, // <-- enable this to clear background location settings when the app terminates
-        });
-
-        // Turn ON the background-geolocation system.  The user will be tracked whenever they suspend the app.
-        backgroundGeoLocation.start();
-        */
+            // Turn ON the background-geolocation system.  The user will be tracked whenever they suspend the app.
+            backgroundGeoLocation.start();
+        }
+        
+        
+        
     },
 
     onDeviceReady: function() {
@@ -140,39 +167,7 @@ var app = {
 
         
         comprobarVersion();
-        /*
-        var push = PushNotification.init({
-            android: {
-                senderID: "1029590604378"
-            },
-            ios: {
-                alert: "true",
-                badge: "true",
-                sound: "true"
-            }
-        });
-
-        push.on('registration', function(data) {
-            // data.registrationId
-            consolelog(data);
-        });
-
-        push.on('notification', function(data) {
-            consolelog(data);
-            // data.message,
-            // data.title,
-            // data.count,
-            // data.sound,
-            // data.image,
-            // data.additionalData
-        });
-
-        push.on('error', function(e) {
-            consolelog(e);
-            // e.message
-        });
-    
-        */
+        
         consolelog("device ready");
 
         
@@ -534,7 +529,7 @@ var Alerta = function(msg,btn,callback,noclose){
 
 
 function consolelog(msg){
-    if(!production){
+    //if(!production){
         console.log(msg);
-    }
+    //}
 }

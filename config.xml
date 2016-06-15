@@ -36,6 +36,7 @@
     <plugin name="com.phonegap.plugin.statusbar" spec="1.1.0" source="pgb" />
     <plugin name="cordova-plugin-mauron85-background-geolocation" source="npm"/>
     <plugin name="nl.x-services.plugins.socialsharing" />
+    <plugin name="org.apache.cordova.splashscreen" spec="0.2.7" source="pgb" />
 
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <access origin="*" />
@@ -95,6 +96,11 @@
     <plugin name="cordova-plugin-facebook4" spec="https://github.com/jeduan/cordova-plugin-facebook4">
         <param name="APP_ID" value="100412800363577" />
         <param name="APP_NAME" value="Life Signal" />
+    </plugin>
+
+    <preference name="android-build-tool" value="gradle" />
+    <plugin name="phonegap-plugin-push" source="npm">
+        <param name="SENDER_ID" value="171369010058" />
     </plugin>
 
 </widget>

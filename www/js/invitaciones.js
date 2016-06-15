@@ -66,7 +66,9 @@ var ItemInvitacion = function(d){
 				admin:usuario.admin
 			},function(res){
 
-
+				if(antgrupo!=null){
+					socket.emit("leave",usuario.grupo.llave);
+				}
 
 				usuario.admin = false;
 
@@ -90,6 +92,9 @@ var ItemInvitacion = function(d){
 	                }
 
 	                usuario.setGrupo(res.grupo);
+
+	                socket.emit("join",usuario.grupo.llave);
+
 					usuario.setMiembros(res.miembros);
 					usuario.setInvitaciones(res.invitaciones);
 					consolelog("-------miembros------");
