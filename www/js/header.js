@@ -34,8 +34,8 @@ var Header = function(){
 
 
 	this.mostrarNotificaciones = function(){
-		consolelog("notificaciones---");
-		consolelog(usuario.notificaciones);
+		console.log("notificaciones---");
+		console.log(usuario.notificaciones);
 		var cant = 0;
 		if(usuario.notificaciones!=null) cant = usuario.notificaciones.length;
 		if(cant>0){
@@ -94,26 +94,24 @@ var Header = function(){
 		if(usuario.miembros!=null) totmie = usuario.miembros.length;
 		
 		var total = totinv + totmie;
-		consolelog("total: "+total);
-		consolelog(usuario.invitaciones);
-		consolelog(usuario.miembros);
+		console.log("total: "+total);
+		console.log(usuario.invitaciones);
+		console.log(usuario.miembros);
 		if(total<10){
 
 			//getContent({page:"contactos"},true);
-			if(production){
-				consolelog("aca");
+			if(production && so=="android"){
 				
 
-				//permissions = window.plugins.permissions;
-				//permissions.hasPermission(checkPermissionCallback, null, permissions.READ_CONTACTS);
+				permissions = window.plugins.permissions;
+				permissions.hasPermission(checkPermissionCallback, null, permissions.READ_CONTACTS);
 				 
 				
 
-				consolelog("hola");
 
 
 				
-				listarContactos();
+				//listarContactos();
 				
 							
 			}else{
@@ -140,7 +138,7 @@ function checkPermissionCallback(status) {
       if( !status.hasPermission ){
       	errorCallback();
       }else{
-      	consolelog("permiso aceptado");
+      	console.log("permiso aceptado");
 
     	listarContactos();
       }
@@ -152,7 +150,7 @@ function checkPermissionCallback(status) {
 }
 
 function listarContactos(){
-	consolelog("listarcontactos");
+	console.log("listarcontactos");
 	getContent({page:"contactos"},true);
 	
 	

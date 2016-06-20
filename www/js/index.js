@@ -34,17 +34,18 @@ var h; //alto de pantalla
 
 var terremoto = false;
 
-var version = "1.0.5";
+var version = "1.0.6";
+var so = "ios";
 
 var backtimer;
 var sendtimer;
 
-var temppos;
+var tempos;
 
 if(production){
 
-    //pathapi = "http://picnic.pe/clientes/lifesignal/api3/";
-    pathapi = "http://192.168.0.17/lifesignal/api2/";
+    pathapi = "http://picnic.pe/clientes/lifesignal/api4/";
+    //pathapi = "http://192.168.0.11/lifesignal/api2/";
 }else{
   
     pathapi = "http://localhost/lifesignal/api2/";
@@ -74,13 +75,13 @@ var app = {
             document.addEventListener("resume", this.onDeviceResume);
             document.addEventListener("pause",this.onDevicePause);
             document.addEventListener("offline", function(){
-               // consolelog("offline");
+               // console.log("offline");
                 online=false;   
                
                 
             }, false);
             document.addEventListener("online",function(){
-                //consolelog("online");
+                //console.log("online");
                 online=true;
                 
             })
@@ -91,27 +92,65 @@ var app = {
     },
     
     onDeviceResume: function(){
-        consolelog("resume");
+        console.log("resume");
        
         //alert("resume");
         //alert(1);
-        if(usuario.grupo!=undefined && usuario.grupo!=null){
+        if(usuario!=undefined && usuario.grupo!=undefined && usuario.grupo!=null){
             backgroundGeoLocation.stop();
             clearInterval(backtimer);
         }
         //comprobarVersion();
+
+        if(usuario.flag==true){
+            $(".alerta").hide();
+            new Request("grupo/listarpendientes",{
+                llave:usuario.grupo.llave
+            },function(lista){
+                usuario.setInvitaciones(lista);
+            })
+            new Request("usuario/buscarinvitaciones",{
+                llave:usuario.llave
+            },function(res){
+                if(res.length>0){
+                    usuario.setNotificaciones(res);
+                }else{
+                    usuario.setNotificaciones(null);
+                }
+                
+            },{
+                espera:null
+            })
+
+            new Request("grupo/listarmiembros",{
+                llave:usuario.grupo.llave
+            },function(lista){
+                usuario.setMiembros(lista);
+
+                
+            });
+
+
+
+            
+        }
+
+
+
         
     },
     onDevicePause:function(){
 
-        if(usuario.grupo!=undefined && usuario.grupo!=null){
+        if(usuario!=undefined && usuario.grupo!=undefined && usuario.grupo!=null){
             var callbackFn = function(location) {
-                consolelog('[js] BackgroundGeoLocation callback:  ' + location.latitude + ',' + location.longitude);
+                //console.log('[js] BackgroundGeoLocation callback:  ' + location.latitude + ',' + location.longitude);
 
 
-                var posicion = location.latitud+","+location.longitude;
-
+                var posicion = location.latitude+","+location.longitude;
+                console.log(">> Enviando posicion desde background: "+posicion);
                 posicion = enc.encriptar(posicion,usuario.grupo.llave);
+
+
 
                 socket.emit("algrupo",{ac:"posicion",grupo:usuario.grupo.llave,id:usuario.id,posicion:posicion,de:"back"});
 
@@ -120,22 +159,24 @@ var app = {
 
                 backtimer = setInterval(function(){
                     navigator.geolocation.getCurrentPosition(function(pos){
+                            //console.log("interval back");
+                            //console.log(pos);
                             tempos = pos;
                     });
                 },5000);
 
                 sendtimer = setInterval(function(){
                     var posicion = tempos.coords.latitude+","+tempos.coords.longitude;
-
+                     console.log(">> Enviando posicion desde background timer: "+posicion);
                     posicion = enc.encriptar(posicion,usuario.grupo.llave);
 
                     socket.emit("algrupo",{ac:"posicion",grupo:usuario.grupo.llave,id:usuario.id,posicion:posicion,de:"backtimer"});
-                },1000*60);
+                },1000*60*5);
 
             };
 
             var failureFn = function(error) {
-                consolelog('BackgroundGeoLocation error');
+                console.log('BackgroundGeoLocation error');
             };
 
             // BackgroundGeoLocation is highly configurable. See platform specific configuration options
@@ -168,7 +209,7 @@ var app = {
         
         comprobarVersion();
         
-        consolelog("device ready");
+        console.log("device ready");
 
         
         header = new Header();
@@ -179,7 +220,7 @@ var app = {
         
         if(window.localStorage.getItem("usuario")==null){
             window.localStorage.clear();
-            consolelog("no sesion");
+            console.log("no sesion");
            
             
             home = new Home();
@@ -202,7 +243,7 @@ var app = {
 
 
         }else{
-            consolelog("sesion activa");
+            console.log("sesion activa");
             usuario = new Usuario();
 
             var data = {
@@ -251,7 +292,7 @@ function comprobarVersion(){
         dataType:"json",
         data:{
             version:version,
-            platform:"ios"
+            platform:"android"
         },
         type:'get',
         success:function(res){
@@ -331,16 +372,16 @@ var Request = function(ac,params,callback,options){
         cache:false,
         timeout:20*1000,
         success:function(res){
-            //consolelog(res);
+            //console.log(res);
            // es.fin();
             callback(res);
              $("#espera").hide();
         },
         error: function(x, t, m) {
             
-           // consolelog(x);
-            //consolelog(t);
-            //consolelog(m);
+           // console.log(x);
+            //console.log(t);
+            //console.log(m);
 
             //es.fin();
 
@@ -381,7 +422,7 @@ function getContent(obj,addEntry){
         try{
             window[antseccion].ocultar();    
         }catch(e){
-            consolelog(e);
+            console.log(e);
         }
       
         switch(seccion){
@@ -528,8 +569,3 @@ var Alerta = function(msg,btn,callback,noclose){
 
 
 
-function consolelog(msg){
-    //if(!production){
-        console.log(msg);
-    //}
-}

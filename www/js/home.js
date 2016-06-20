@@ -11,7 +11,6 @@ var Home = function(){
 	});
 
 
-
 	new Boton($("#home .login .bt.signin"),function(){
 		var em = $("#home .login input[name=email]").val();
 		var cl = $("#home .login input[name=clave]").val();
@@ -41,31 +40,28 @@ var Home = function(){
 	new Boton($("#home .login .bt.fb"),function(){
 		var es = new Espera("");
 		facebook.login(function(conectado){
-			consolelog("login fb:"+conectado);
+			console.log("login fb:"+conectado);
 			if(conectado){	
 				es.txt("Obteniendo información del perfil de Facebook...")
 				facebook.myInfo(function(infofb){
-                    consolelog(infofb);
+                    console.log(infofb);
                     
-					  
-                    
-                    
-	                    new Request("usuario/validarfb",{
-	                    	fbid:infofb.id,
-	                    	email:infofb.email
-	                    },function(res){
-	                    	$("#espera").hide();
-	                    	if(res.existe){
-	                    		usuario = new Usuario();
-	                    		usuario.iniciar(res);
-	                    	}else{
-	                    		$("#home .login").hide();
-	                    		$("#home .tel").show();
-	                    		$("#home .tel .usuario").html(infofb.first_name+' '+infofb.last_name);
-	                    		if(infofb.pic!=null) $("#home .tel .pic").css("background-image","url('"+infofb.pic+"')");
-	                    		$("#home .noregistro").hide();
-	                    	}
-	                    })
+                    new Request("usuario/validarfb",{
+                    	fbid:infofb.id,
+                    	email:infofb.email
+                    },function(res){
+                    	$("#espera").hide();
+                    	if(res.existe){
+                    		usuario = new Usuario();
+                    		usuario.iniciar(res);
+                    	}else{
+                    		$("#home .login").hide();
+                    		$("#home .tel").show();
+                    		$("#home .tel .usuario").html(infofb.first_name+' '+infofb.last_name);
+                    		if(infofb.pic!=null) $("#home .tel .pic").css("background-image","url('"+infofb.pic+"')");
+                    		$("#home .noregistro").hide();
+                    	}
+                    })
                 	
                 })
 			}else{
@@ -82,12 +78,7 @@ var Home = function(){
 		
 		if(tel!=""){
 
-			
-
 			if (/^([0-9])*$/.test(tel) && tel.length==9 && tel.substr(0,1)=="9"){
-
-
-				
 
 				var info = facebook.info;
 
@@ -113,8 +104,7 @@ var Home = function(){
 			}
 		}
 
-		
-	})
+	});
 
 	var pt = ((h-320)-100)/2;
 	$("#home .login").css("padding-top",pt);

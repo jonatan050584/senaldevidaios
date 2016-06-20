@@ -32,11 +32,11 @@
 
     <plugin name="org.apache.cordova.contacts" spec="0.2.16" source="pgb" />
     <plugin name="org.apache.cordova.geolocation" />
-    <plugin name="org.apache.cordova.globalization" />
     <plugin name="com.phonegap.plugin.statusbar" spec="1.1.0" source="pgb" />
     <plugin name="cordova-plugin-mauron85-background-geolocation" source="npm"/>
     <plugin name="nl.x-services.plugins.socialsharing" />
     <plugin name="org.apache.cordova.splashscreen" spec="0.2.7" source="pgb" />
+
 
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <access origin="*" />

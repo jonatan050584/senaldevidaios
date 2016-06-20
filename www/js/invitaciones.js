@@ -37,7 +37,7 @@ var Invitaciones = function(){
 Invitaciones.prototype = new Seccion();
 
 var ItemInvitacion = function(d){
-	consolelog(d);
+	console.log(d);
 	this.html = $(lib.ItemInvitacion);
 	
 	this.html.find(".usuario").html(d.nombres+" "+d.apellidos);
@@ -97,8 +97,8 @@ var ItemInvitacion = function(d){
 
 					usuario.setMiembros(res.miembros);
 					usuario.setInvitaciones(res.invitaciones);
-					consolelog("-------miembros------");
-					consolelog(usuario.miembros);
+					console.log("-------miembros------");
+					console.log(usuario.miembros);
 					$.each(usuario.miembros,function(k,v){
 						if(v.id!=usuario.id){
 							socket.emit("directo",{ac:"invitacionaceptada",id:v.id});	

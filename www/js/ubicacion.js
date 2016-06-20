@@ -11,6 +11,8 @@ var Ubicacion = function(){
 	this.myMarker = null;
 	this.zonaMarker = null;
 
+	this.miembros_markers = {};
+
 	new Boton($("#ubicacion .footer .boton.zona"),function(){
 		if(usuario.grupo.zonasegura_id==null){
 			if(usuario.admin==true){
@@ -55,14 +57,14 @@ var Ubicacion = function(){
 	})
 
 	this.mostrar = function(){
-		console.log(usuario.grupo);
+		
 		header.mostrar("menu");
 		$("#ubicacion .footer").show();
 		
 		try{
 			google.maps.event.clearListeners(mapa, 'idle');
 		}catch(e){
-			consolelog(e);
+			console.log(e);
 		}
 		
 		
@@ -354,9 +356,11 @@ var Ubicacion = function(){
 			anchor: new google.maps.Point(15,20)
 		};
 
+		var markerico = usuario.marker;
+		if(markerico==null) markerico = "img/markeruser.png";
 
 	    var icono = {
-	    	url:usuario.marker,
+	    	url:markerico,
 	    	scaledSize: new google.maps.Size(45, 60)
 	    }
 
@@ -401,16 +405,29 @@ var Ubicacion = function(){
 		
 	})*/
 	this.verMiembros = function(){
-		consolelog("miembros");
+		var enmapa;
+		if(terremoto) enmapa = mapa;
+		else enmapa = null;
+
 		$.each(usuario.miembros,function(k,v){
-			consolelog(v);
+			console.log(v);
 			if(v.posicion!=undefined && usuario.grupo!=null && v.id != usuario.id){
 				var pos = String(enc.desencriptar(v.posicion,usuario.grupo.llave)).split(",");
-				consolelog(pos);
-				var miembromarker = new google.maps.Marker({
+				
+				var markerico = v.marker;
+				if(markerico==null) markerico = "img/markeruser.png";
+
+			    var icono = {
+			    	url:markerico,
+			    	scaledSize: new google.maps.Size(45, 60)
+			    }
+
+				
+			    ubicacion.miembros_markers[v.id] = new google.maps.Marker({
                   clickable:true,
                   zIndex:999,
-                  map:mapa,
+                  map:enmapa,
+                  icon:icono,
                   position:{lat:parseFloat(pos[0]),lng:parseFloat(pos[1])}
                 });
 
@@ -420,15 +437,69 @@ var Ubicacion = function(){
 		})
 
 	}
+	this.actualizarPosicion = function(id,posicion,timestamp){
+		
+		var enmapa;
+
+		if(terremoto) enmapa = mapa;
+		else enmapa = null;
+
+		var posicion = String(enc.desencriptar(posicion,usuario.grupo.llave)).split(",");
+		var latlng = new google.maps.LatLng(parseFloat(posicion[0]),parseFloat(posicion[1]));
+		if(ubicacion.miembros_markers[id]!=undefined){
+			ubicacion.miembros_markers[id].setPosition(latlng);
+		}else{
+			if(usuario.miembros!=undefined && usuario.miembros!=null){
+				$.each(usuario.miembros,function(k,v){
+					if(v.id == id){
+
+						var markerico = v.marker;
+						if(markerico==null) markerico = "img/markeruser.png";
+
+					    var icono = {
+					    	url:markerico,
+					    	scaledSize: new google.maps.Size(45, 60)
+					    }
+
+						
+					    ubicacion.miembros_markers[v.id] = new google.maps.Marker({
+		                  clickable:true,
+		                  zIndex:999,
+		                  map:mapa,
+		                  icon:icono,
+		                  position:latlng
+		                });
+
+					}
+				})
+			}
+			
+			
+		}
+
+
+	}
+	this.onTerremoto = function(){
+		$.each(ubicacion.miembros_markers,function(k,v){
+			v.setMap(mapa);
+		});
+	}
+	this.offTerremoto = function(){
+		$.each(ubicacion.miembros_markers,function(k,v){
+			v.setMap(null);
+		});
+	}
+
+
 	this.onError = function(error){
-		consolelog('code: '    + error.code    + '\n' +  'message: ' + error.message + '\n');
+		console.log('code: '    + error.code    + '\n' +  'message: ' + error.message + '\n');
 	}
 	
 
 	this.onPosicionesssssss = function(data){
 		
-		consolelog(data);
-		consolelog(internagrupo.miembros);
+		console.log(data);
+		console.log(internagrupo.miembros);
 		$.each(internagrupo.miembros,function(key,val){
 			if(data[parseInt(val.id)]!=null){
 				if(ubicacion.markers[parseInt(val.id)]==undefined){
@@ -489,10 +560,10 @@ var Ubicacion = function(){
 
 
 					var fecha = new Date(data[parseInt(val.id)].datetime);
-					consolelog(fecha.getHours());
+					console.log(fecha.getHours());
 
 					var ho = fecha.getHours();
-					consolelog(ho);
+					console.log(ho);
 					var ampm;
 
 					if(ho<12) ampm = "AM";
@@ -500,7 +571,7 @@ var Ubicacion = function(){
 					var hora=ho;
 					if(ho==0) hora="12";
 					if(ho>12) hora=String(ho-12);
-					consolelog(hora);
+					console.log(hora);
 					hora = String("0"+String(hora)).substr(-2);
 
 					var minutos = fecha.getMinutes();

@@ -5,9 +5,9 @@ var Usuario = function(){
     this.flag=false;
 
     this.iniciar = function(data){
-        consolelog("data----");
-        consolelog(data);
-        $("#marker").show();
+        console.log("data----");
+        console.log(data);
+        //$("#marker").show();
         
         var info = data.info;
 
@@ -19,7 +19,8 @@ var Usuario = function(){
         this.llave = info.llave;
         this.fbid = info.fbid;
         this.pic = info.pic;
-        this.marker = 'img/markeruser.png';
+        //this.marker = 'img/markeruser.png';
+        this.marker = info.marker;
 
         this.grupo = data.grupo;
         this.invitaciones = data.invitaciones;
@@ -46,9 +47,9 @@ var Usuario = function(){
         }
 
 
-        if(production){
-            //geopermisos = window.plugins.permissions;
-            //geopermisos.hasPermission(checkGeoPermisos, null, geopermisos.ACCESS_FINE_LOCATION);
+        if(production && so=="android"){
+            geopermisos = window.plugins.permissions;
+            geopermisos.hasPermission(checkGeoPermisos, null, geopermisos.ACCESS_FINE_LOCATION);
         }
 
         flaglogin=true;
@@ -56,14 +57,14 @@ var Usuario = function(){
 
         
 
-        //if(production) socket = io.connect('http://picnic.pe:8883');
-        if(production) socket = io.connect('http://192.168.0.17:8884');
-        else socket = io.connect('http://localhost:8884');
+        if(production) socket = io.connect('http://picnic.pe:8884');
+        //if(production) socket = io.connect('http://192.168.0.11:8883');
+        else socket = io.connect('http://localhost:8883');
 
         socket.on("connect", function() {
 
 
-            consolelog("usuario conectado al servidor");
+            console.log("usuario conectado al servidor");
 
             if(usuario.flag==true){
                 $(".alerta").hide();
@@ -89,6 +90,8 @@ var Usuario = function(){
                     llave:usuario.grupo.llave
                 },function(lista){
                     usuario.setMiembros(lista);
+
+                    
                 });
 
 
@@ -114,8 +117,8 @@ var Usuario = function(){
         });
 
         socket.on("directo",function(data){
-            consolelog("socket");
-            consolelog(data);
+            console.log("socket");
+            console.log(data);
             switch(data.ac){
                 case "nuevoinvitado":
                     
@@ -238,18 +241,21 @@ var Usuario = function(){
                     });
                     break;
                 case "posicion":
-                    consolelog("---posicion---");
-                    consolelog(data.id);
-                    consolelog(data.posicion);
-                    //consolelog(enc.desencriptar(data.posicion,usuario.grupo.llave));
+                    console.log(">> Posicion recibida");
+                    //console.log(data.id);
+                    //console.log(data.posicion);
+                    //console.log(enc.desencriptar(data.posicion,usuario.grupo.llave));
 
                     if(usuario.miembros!=null){
                         $.each(usuario.miembros,function(k,v){
                             if(v.id == data.id){
+                                console.log(v.nombres+" ha enviado su posicion: "+enc.desencriptar(data.posicion,usuario.grupo.llave));
                                 v.posicion = data.posicion;
                                 v.timestamp = data.timestamp;
 
-                                
+                                if(terremoto==true && seccion == "ubicacion"){
+                                    ubicacion.actualizarPosicion(data.id,v.posicion,v.timestamp);
+                                }
 
                             }
 
@@ -265,61 +271,39 @@ var Usuario = function(){
             
         })
 
-        /*socket.on("posicion",function(data){
-            consolelog(data);
-            ubicacion.onPosiciones(data);
+        
+
+        
+        socket.on("estadoterremoto",function(valor,mensaje){
+            terremoto=valor;
+            if(valor){
+                $(".alerta").hide();
+                new Alerta(mensaje);
+                //$("#internagrupo .btn.ubicacion").show();
+                //$("#internagrupo").css("padding-top",85);
+            }
         });
-        socket.on("mensaje",function(data){
-            consolelog(data);
+
+        socket.on("hayterremoto",function(mensaje){
+            terremoto=true;
+            new Alerta(mensaje);
+            console.log(">> TERREMOTO")
+            //$("#internagrupo .btn.ubicacion").show();
+             //$("#internagrupo").css("padding-top",85);
+             ubicacion.onTerremoto();
+        });
+
+
+
+        socket.on("acaboterremoto",function(mensaje){
+            terremoto=false;
+            $(".alerta").hide();
+            new Alerta(mensaje);
+            console.log("<< ACABO TERREMOTO");
+            ubicacion.offTerremoto();
         });
 
         
-        socket.on("estadoterremoto",function(valor){
-            terremoto=valor;
-            if(valor){
-                new Alerta("Terremoto de 7.6<br>Epicentro: Cañete<br>¡Ubica a tus contactos ahora!");
-                $("#internagrupo .btn.ubicacion").show();
-                $("#internagrupo").css("padding-top",85);
-            }
-        });
-
-        socket.on("hayterremoto",function(){
-            terremoto=true;
-            new Alerta("Terremoto de 7.6 - Epicentro Cañete<br>¡Ubica a tus contactos ahora!");
-            $("#internagrupo .btn.ubicacion").show();
-             $("#internagrupo").css("padding-top",85);
-        });
-
-
-
-        socket.on("acaboterremoto",function(){
-            terremoto=false;
-            consolelog("acabo");
-            $("#internagrupo .btn.ubicacion").hide();
-            $("#internagrupo").css("padding-top",50);
-            if(seccion=="ubicacion"){
-                getContent({page:"grupos"},false);
-            }
-        });
-
-        socket.on("enviarinvitacion",function(invitado){
-            if(usuario.id == invitado){
-                header.cargarInvitaciones();
-            }
-        });
-
-        socket.on('aceptarinvitacion',function(data){
-            if(data.usuario==usuario.id){
-                grupos.listar();    
-            }
-            if(seccion=="internagrupo" && internagrupo.id == data.grupo){
-                internagrupo.listarcontactos(data.grupo);
-            }
-        });
-        socket.on("mensaje",function(data){
-            
-        });
-        */
 
 
         
@@ -336,7 +320,7 @@ var Usuario = function(){
         
         
         
-        this.crearMarker();
+        //this.crearMarker();
 
     
         
@@ -364,6 +348,7 @@ var Usuario = function(){
             });
 
             push.on('registration', function(data) {
+                console.log(">> PUSH ID")
                 console.log(data);
                 // data.registrationId
                 usuario.registrationId = data.registrationId;
@@ -376,7 +361,7 @@ var Usuario = function(){
             });
 
             push.on('notification', function(data) {
-                consolelog(data);
+                console.log(data);
                 // data.message,
                 // data.title,
                 // data.count,
@@ -386,7 +371,7 @@ var Usuario = function(){
             });
 
             push.on('error', function(e) {
-                consolelog(e);
+                console.log(e);
                 // e.message
             });
         
@@ -470,7 +455,7 @@ function checkGeoPermisos(status) {
       if( !status.hasPermission ){
         errorCallback();
       }else{
-        consolelog("permiso aceptado");
+        console.log("permiso aceptado");
 
        // new Alerta("Gracias");
       }
@@ -478,6 +463,6 @@ function checkGeoPermisos(status) {
   }else{
 
     //new Alerta("Gracias");
-    consolelog("permiso aceptado");
+    console.log("permiso aceptado");
   }
 }

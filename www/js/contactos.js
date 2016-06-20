@@ -94,7 +94,7 @@ var Contactos = function(){
 			var es = new Espera("Listando contactos...");
 			
 			navigator.contacts.find(['displayName', 'name','phoneNumbers'], this.onContacts, function(e){
-				//consolelog(error);
+				//console.log(error);
 			}, options);
 		}else{
 
@@ -112,7 +112,7 @@ var Contactos = function(){
 
 	this.onContacts = function(res){
 		
-		consolelog(res);
+		console.log(res);
 
 		$("#espera").hide();
 		
@@ -180,7 +180,7 @@ var Contactos = function(){
 	
 	this.validarexiste = function(tel,nombre){
 
-		//consolelog(usuario.invitaciones);
+		//console.log(usuario.invitaciones);
 		var es = new Espera("");
 		
 		var yaesta = false;
@@ -395,7 +395,7 @@ var ItemContacto = function(d){
 	        
 	        
 		
-			//window.plugins.socialsharing.shareViaSMS('Prueba LifeSignal para tu smartphone. Visita http://picnic.pe/lifesignal/ para descargarlo',d.original,function(msg){consolelog('ok: ' + msg);},function(msg) {alert('error: ' + msg);});
+			//window.plugins.socialsharing.shareViaSMS('Prueba LifeSignal para tu smartphone. Visita http://picnic.pe/lifesignal/ para descargarlo',d.original,function(msg){console.log('ok: ' + msg);},function(msg) {alert('error: ' + msg);});
 		
 		
 	})

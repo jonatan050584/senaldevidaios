@@ -129,8 +129,8 @@ var Internagrupo = function(){
 	
 
 	this.llenarListaMiembros = function(){
-		consolelog("llenarlistamiembros");
-		consolelog(usuario.miembros);
+		console.log("llenarlistamiembros");
+		console.log(usuario.miembros);
 		$("#internagrupo .lista .miembros").empty();
 		
 		if(usuario.miembros!=null){
