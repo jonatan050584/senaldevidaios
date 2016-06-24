@@ -183,6 +183,7 @@ var app = {
             backgroundGeoLocation.configure(callbackFn, failureFn, {
                 desiredAccuracy: 10,
                 stationaryRadius: 20,
+                activityType: 'Other', 
                 distanceFilter: 30,
                 debug: false, // <-- enable this hear sounds for background-geolocation life-cycle.
                 stopOnTerminate: false, // <-- enable this to clear background location settings when the app terminates
