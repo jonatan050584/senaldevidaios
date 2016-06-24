@@ -57,8 +57,8 @@ var Usuario = function(){
 
         
 
-        //if(production) socket = io.connect('http://picnic.pe:8884');
-        if(production) socket = io.connect('http://192.168.0.11:8884');
+        if(production) socket = io.connect('http://picnic.pe:8884');
+        //if(production) socket = io.connect('http://192.168.0.11:8884');
         else socket = io.connect('http://localhost:8883');
 
         socket.on("connect", function() {
